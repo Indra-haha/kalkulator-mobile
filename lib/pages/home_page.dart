@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-import 'ganjil_genap_page.dart';
-import 'jumlah_total_page.dart';
 import 'kalkulator_page.dart';
 import 'kelompok_page.dart';
 
@@ -34,11 +32,8 @@ class HomePage extends StatelessWidget {
               title: const Text('Data Kelompok'),
               subtitle: const Text('Lihat data anggota kelompok'),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () => _openPage(
-                context,
-                const KelompokPage(),
-                'data-kelompok',
-              ),
+              onTap: () =>
+                  _openPage(context, const KelompokPage(), 'data-kelompok'),
             ),
           ),
           Card(
@@ -64,32 +59,6 @@ class HomePage extends StatelessWidget {
                 context,
                 const KalkulatorPage(initialOperation: 'perkalian'),
                 'perkalian-pembagian',
-              ),
-            ),
-          ),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.filter_alt, color: Colors.deepPurple),
-              title: const Text('Bilangan Ganjil / Genap'),
-              subtitle: const Text('Cek input bilangan ganjil atau genap'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => _openPage(
-                context,
-                const GanjilGenapPage(),
-                'ganjil-genap',
-              ),
-            ),
-          ),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.summarize, color: Colors.deepPurple),
-              title: const Text('Jumlah Total Angka'),
-              subtitle: const Text('Hitung total angka pada field input'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => _openPage(
-                context,
-                const JumlahTotalPage(),
-                'jumlah-total',
               ),
             ),
           ),
