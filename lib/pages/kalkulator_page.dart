@@ -24,13 +24,11 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
   String _result = '';
 
   final List<String> _gridButtons = [
-    'C', '⌫', '=',
-    '+', '-', '×',
-    '÷', 'G/G', 'Deret',
-    '7', '8', '9',
-    '4', '5', '6',
-    '1', '2', '3',
-    '0', '.', ',',
+    'C', '⌫','G/G', '÷',
+    '7', '8', '9', '×',
+    '4', '5', '6', '-',
+    '1', '2', '3', '+',
+    '0', '.', 'Deret', '=',
   ];
 
   @override
@@ -159,7 +157,7 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
     };
 
     setState(() {
-      _result = '$a $simbol $b = ${_numFormat(hasil)}';
+      _result = ' ${_numFormat(hasil)}';
     });
   }
 
@@ -182,11 +180,10 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
 
   @override
   Widget build(BuildContext context) {
-    final OperationInfo info = _operations[_operation]!;
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Kalkulator (${info.nama})'),
+        title: Text('Kalkulator'),
         backgroundColor: Colors.deepPurple,
         foregroundColor: Colors.white,
       ),
@@ -200,7 +197,11 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
                 children: [
                   TextField(
                     controller: _displayController,
-                    readOnly: true,
+                    onChanged: (value) {
+                      setState(() {
+                        _hitung();
+                      });
+                    },
                     showCursor: true,
                     textAlign: TextAlign.right,
                     style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
@@ -208,18 +209,15 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
                       labelText: _operation == 'deret'
                           ? 'Masukkan Deret (pisahkan dengan koma/spasi)'
                           : 'Masukkan angka',
-                      prefixIcon: const Icon(Icons.pin_outlined),
-                      border: const OutlineInputBorder(),
-                      focusedBorder: const OutlineInputBorder(
-                        borderSide: BorderSide(color: Colors.deepPurple, width: 2),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
                   ),
 
                   const SizedBox(height: 20),
 
-                  if (_result.isNotEmpty)
-                    Container(
+                  Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: Colors.deepPurple.withValues(alpha: 0.1),
@@ -232,6 +230,7 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
                             fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                     ),
+                   
                 ],
               ),
             ),
@@ -245,9 +244,9 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
               physics: const NeverScrollableScrollPhysics(),
               itemCount: _gridButtons.length,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
+                crossAxisCount: 4,
                 crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
+                mainAxisSpacing: 14,
                 childAspectRatio: 2.2,
               ),
               itemBuilder: (context, index) {
