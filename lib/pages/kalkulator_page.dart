@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
 
+void main() {
+  runApp(const MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: KalkulatorPage(),
+  ));
+}
+
 class KalkulatorPage extends StatefulWidget {
   const KalkulatorPage({super.key, this.initialOperation = 'penjumlahan'});
 
@@ -10,12 +17,21 @@ class KalkulatorPage extends StatefulWidget {
 }
 
 class _KalkulatorPageState extends State<KalkulatorPage> {
-  final TextEditingController _angka1Controller = TextEditingController();
-  final TextEditingController _angka2Controller = TextEditingController();
+  final TextEditingController _displayController = TextEditingController();
 
   late final Map<String, OperationInfo> _operations;
   late String _operation;
   String _result = '';
+
+  final List<String> _gridButtons = [
+    'C', '⌫', '=',
+    '+', '-', '×',
+    '÷', 'G/G', 'Deret',
+    '7', '8', '9',
+    '4', '5', '6',
+    '1', '2', '3',
+    '0', '.', ',',
+  ];
 
   @override
   void initState() {
@@ -23,30 +39,117 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
     _operations = {
       'penjumlahan': const OperationInfo('Penjumlahan', '+', '+'),
       'pengurangan': const OperationInfo('Pengurangan', '-', '-'),
-      'perkalian': const OperationInfo('Perkalian', '*', '\u00d7'),
-      'pembagian': const OperationInfo('Pembagian', '/', '\u00f7'),
+      'perkalian': const OperationInfo('Perkalian', '*', '×'),
+      'pembagian': const OperationInfo('Pembagian', '/', '÷'),
+      'ganjil_genap': const OperationInfo('Ganjil / Genap', 'G/G', 'G/G'),
+      'deret': const OperationInfo('Hitung Deret Data', 'Σ', 'Deret'),
     };
     _operation = widget.initialOperation;
   }
 
+  void _onGridButtonPressed(String value) {
+    setState(() {
+      if (value == 'C') {
+        _clear();
+        return;
+      }
+      if (value == '⌫') {
+        if (_displayController.text.isNotEmpty) {
+          _displayController.text =
+              _displayController.text.substring(0, _displayController.text.length - 1);
+        }
+        return;
+      }
+      if (value == '=') {
+        _hitung();
+        return;
+      }
+
+      switch (value) {
+        case '+':
+          _operation = 'penjumlahan';
+          _displayController.text += ' + ';
+          return;
+        case '-':
+          _operation = 'pengurangan';
+          _displayController.text += ' - ';
+          return;
+        case '×':
+          _operation = 'perkalian';
+          _displayController.text += ' × ';
+          return;
+        case '÷':
+          _operation = 'pembagian';
+          _displayController.text += ' ÷ ';
+          return;
+        case 'G/G':
+          _operation = 'ganjil_genap';
+          return;
+        case 'Deret':
+          _operation = 'deret';
+          return;
+      }
+
+      _displayController.text += value;
+    });
+  }
+
   void _hitung() {
-    final double? a = double.tryParse(_angka1Controller.text.trim());
-    final double? b = double.tryParse(_angka2Controller.text.trim());
+    final String raw = _displayController.text.trim();
+    if (raw.isEmpty) return;
+
+    if (_operation == 'ganjil_genap') {
+      final int? num = int.tryParse(raw);
+      if (num == null) {
+        setState(() => _result = 'Masukkan angka bulat!');
+        return;
+      }
+      setState(() {
+        _result =
+            '$num adalah Bilangan ${num % 2 == 0 ? "GENAP" : "GANJIL"}';
+      });
+      return;
+    }
+
+    if (_operation == 'deret') {
+      final List<String> items = raw.split(RegExp(r'[,\s]+'));
+      double total = 0;
+      int count = 0;
+      for (var item in items) {
+        double? val = double.tryParse(item);
+        if (val != null) {
+          total += val;
+          count++;
+        }
+      }
+      setState(() {
+        _result = count > 0
+            ? 'Total $count data deret = ${_numFormat(total)}'
+            : 'Tidak ada data valid';
+      });
+      return;
+    }
+
+    final List<String> parts = raw.split(RegExp(r'\s+[+\-×÷]\s+'));
+    if (parts.length < 2) {
+      setState(() => _result = 'Masukkan angka yang valid!');
+      return;
+    }
+
+    final double? a = double.tryParse(parts[0].trim());
+    final double? b = double.tryParse(parts[1].trim());
 
     if (a == null || b == null) {
-      setState(() {
-        _result = 'Masukkan angka yang valid!';
-      });
+      setState(() => _result = 'Masukkan angka yang valid!');
       return;
     }
 
     if (b == 0 && _operation == 'pembagian') {
-      setState(() {
-        _result = 'Tidak dapat membagi dengan nol!';
-      });
+      setState(() => _result = 'Tidak dapat membagi dengan nol!');
       return;
     }
 
+    final String simbol = _operations[_operation]!.simbol;
     final double hasil = switch (_operation) {
       'penjumlahan' => a + b,
       'pengurangan' => a - b,
@@ -56,27 +159,24 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
     };
 
     setState(() {
-      _result =
-          '$a ${_operations[_operation]!.simbol} $b = ${_numFormat(hasil)}';
+      _result = '$a $simbol $b = ${_numFormat(hasil)}';
     });
   }
 
   String _numFormat(double value) {
-    return value == value.roundToDouble() ? value.toStringAsFixed(0) : value.toString();
+    return value == value.roundToDouble()
+        ? value.toStringAsFixed(0)
+        : value.toString();
   }
 
   void _clear() {
-    _angka1Controller.clear();
-    _angka2Controller.clear();
-    setState(() {
-      _result = '';
-    });
+    _displayController.clear();
+    _result = '';
   }
 
   @override
   void dispose() {
-    _angka1Controller.dispose();
-    _angka2Controller.dispose();
+    _displayController.dispose();
     super.dispose();
   }
 
@@ -86,111 +186,105 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(info.nama),
+        title: Text('Kalkulator (${info.nama})'),
         backgroundColor: Colors.deepPurple,
         foregroundColor: Colors.white,
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SegmentedButton<String>(
-              segments: _operations.entries
-                  .where((e) =>
-                      _isTambahKurang(_operation)
-                          ? e.key == 'penjumlahan' || e.key == 'pengurangan'
-                          : e.key == 'perkalian' || e.key == 'pembagian')
-                  .map(
-                (entry) => ButtonSegment<String>(
-                  value: entry.key,
-                  label: Text(entry.value.simbolTab),
-                ),
-              ).toList(),
-              selected: {_operation},
-              onSelectionChanged: (selection) {
-                setState(() {
-                  _operation = selection.first;
-                });
+      body: Column(
+        children: [
+          Expanded(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TextField(
+                    controller: _displayController,
+                    readOnly: true,
+                    showCursor: true,
+                    textAlign: TextAlign.right,
+                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    decoration: InputDecoration(
+                      labelText: _operation == 'deret'
+                          ? 'Masukkan Deret (pisahkan dengan koma/spasi)'
+                          : 'Masukkan angka',
+                      prefixIcon: const Icon(Icons.pin_outlined),
+                      border: const OutlineInputBorder(),
+                      focusedBorder: const OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.deepPurple, width: 2),
+                      ),
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  if (_result.isNotEmpty)
+                    Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: Colors.deepPurple.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Text(
+                        _result,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                            fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+
+          Container(
+            color: Colors.grey[200],
+            padding: const EdgeInsets.all(8.0),
+            child: GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: _gridButtons.length,
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                crossAxisSpacing: 8,
+                mainAxisSpacing: 8,
+                childAspectRatio: 2.2,
+              ),
+              itemBuilder: (context, index) {
+                final btn = _gridButtons[index];
+                Color btnColor = Colors.white;
+                Color textColor = Colors.black;
+
+                if (btn == '=') {
+                  btnColor = Colors.deepPurple;
+                  textColor = Colors.white;
+                } else if (btn == 'C' || btn == '⌫') {
+                  btnColor = Colors.redAccent;
+                  textColor = Colors.white;
+                } else if (['+', '-', '×', '÷', 'G/G', 'Deret']
+                    .contains(btn)) {
+                  btnColor = Colors.deepPurple.shade100;
+                  textColor = Colors.deepPurple.shade900;
+                }
+
+                return ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: btnColor,
+                    foregroundColor: textColor,
+                    shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8)),
+                  ),
+                  onPressed: () => _onGridButtonPressed(btn),
+                  child: Text(btn,
+                      style: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold)),
+                );
               },
             ),
-            const SizedBox(height: 24),
-            TextField(
-              controller: _angka1Controller,
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(
-                labelText: 'Angka 1',
-                prefixIcon: Icon(Icons.pin_outlined),
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              info.simbolTab,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _angka2Controller,
-              keyboardType: TextInputType.numberWithOptions(decimal: true),
-              decoration: const InputDecoration(
-                labelText: 'Angka 2',
-                prefixIcon: Icon(Icons.pin_outlined),
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    onPressed: _hitung,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.deepPurple,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    child: const Text('Hitung'),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: _clear,
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    child: const Text('Bersihkan'),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 24),
-            if (_result.isNotEmpty)
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.deepPurple.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  'Hasil: $_result',
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
-  }
-
-  bool _isTambahKurang(String op) {
-    return op == 'penjumlahan' || op == 'pengurangan';
   }
 }
 

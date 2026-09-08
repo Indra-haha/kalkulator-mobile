@@ -39,26 +39,13 @@ class HomePage extends StatelessWidget {
           Card(
             child: ListTile(
               leading: const Icon(Icons.calculate, color: Colors.deepPurple),
-              title: const Text('Penjumlahan & Pengurangan'),
-              subtitle: const Text('Operasi + dan -'),
+              title: const Text('Kalkulator'),
+              subtitle: const Text('Operasi matematika'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => _openPage(
                 context,
                 const KalkulatorPage(initialOperation: 'penjumlahan'),
-                'penjumlahan-pengurangan',
-              ),
-            ),
-          ),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.functions, color: Colors.deepPurple),
-              title: const Text('Perkalian & Pembagian'),
-              subtitle: const Text('Operasi * dan /'),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () => _openPage(
-                context,
-                const KalkulatorPage(initialOperation: 'perkalian'),
-                'perkalian-pembagian',
+                'kalkulator',
               ),
             ),
           ),
