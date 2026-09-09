@@ -28,7 +28,7 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
     '7', '8', '9', '×',
     '4', '5', '6', '-',
     '1', '2', '3', '+',
-    '0', '.', 'Deret', '=',
+    '0', '.', ',', 'Deret',
   ];
 
   @override
@@ -43,6 +43,9 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
       'deret': const OperationInfo('Hitung Deret Data', 'Σ', 'Deret'),
     };
     _operation = widget.initialOperation;
+    _displayController.addListener(() {
+      _hitung();
+    });
   }
 
   void _onGridButtonPressed(String value) {
@@ -216,7 +219,6 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
                   ),
 
                   const SizedBox(height: 20),
-
                   Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
@@ -235,7 +237,6 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
               ),
             ),
           ),
-
           Container(
             color: Colors.grey[200],
             padding: const EdgeInsets.all(8.0),
