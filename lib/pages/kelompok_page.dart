@@ -7,29 +7,24 @@ class KelompokPage extends StatelessWidget {
   Widget build(BuildContext context) {
     const List<Map<String, String>> anggota = [
       {
-        'nama': 'Andi Pratama',
-        'nim': '2023001',
-        'kelas': 'TI-3A',
+        'nama': 'Pranata Raplialiano',
+        'nim': '124240175',
+        'kelas': 'Pemrograman Mobile SI-B',
       },
       {
-        'nama': 'Budi Santoso',
-        'nim': '2023002',
-        'kelas': 'TI-3A',
+        'nama': 'Indra Suryanto P',
+        'nim': '124240180',
+        'kelas': 'Pemrograman Mobile SI-B',
       },
       {
-        'nama': 'Citra Lestari',
-        'nim': '2023003',
-        'kelas': 'TI-3A',
+        'nama': 'Fajar Sidiq H',
+        'nim': '124240183',
+        'kelas': 'Pemrograman Mobile SI-B',
       },
       {
-        'nama': 'Dewi Anggraini',
-        'nim': '2023004',
-        'kelas': 'TI-3A',
-      },
-      {
-        'nama': 'Eko Ramadhan',
-        'nim': '2023005',
-        'kelas': 'TI-3A',
+        'nama': 'Aditya Rahmat F',
+        'nim': '124240184',
+        'kelas': 'Pemrograman Mobile SI-B',
       },
     ];
 

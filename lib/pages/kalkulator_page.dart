@@ -19,29 +19,20 @@ class KalkulatorPage extends StatefulWidget {
 class _KalkulatorPageState extends State<KalkulatorPage> {
   final TextEditingController _displayController = TextEditingController();
 
-  late final Map<String, OperationInfo> _operations;
   late String _operation;
   String _result = '';
 
   final List<String> _gridButtons = [
-    'C', '⌫','G/G', '÷',
-    '7', '8', '9', '×',
-    '4', '5', '6', '-',
-    '1', '2', '3', '+',
-    '0', '.', ',', 'Deret',
+    'C', '⌫', 'G/G', 'Sn',
+    '7', '8', '9', '÷',
+    '4', '5', '6', '×',
+    '1', '2', '3', '-',
+    '0', '.', ',', '+',
   ];
 
   @override
   void initState() {
     super.initState();
-    _operations = {
-      'penjumlahan': const OperationInfo('Penjumlahan', '+', '+'),
-      'pengurangan': const OperationInfo('Pengurangan', '-', '-'),
-      'perkalian': const OperationInfo('Perkalian', '*', '×'),
-      'pembagian': const OperationInfo('Pembagian', '/', '÷'),
-      'ganjil_genap': const OperationInfo('Ganjil / Genap', 'G/G', 'G/G'),
-      'deret': const OperationInfo('Hitung Deret Data', 'Σ', 'Deret'),
-    };
     _operation = widget.initialOperation;
     _displayController.addListener(() {
       _hitung();
@@ -54,41 +45,45 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
         _clear();
         return;
       }
+      
       if (value == '⌫') {
         if (_displayController.text.isNotEmpty) {
-          _displayController.text =
-              _displayController.text.substring(0, _displayController.text.length - 1);
+          if (_displayController.text.endsWith(' ')) {
+            _displayController.text = _displayController.text
+                .substring(0, _displayController.text.length - 3);
+          } else {
+            _displayController.text = _displayController.text
+                .substring(0, _displayController.text.length - 1);
+          }
         }
         return;
       }
-      if (value == '=') {
+
+      if (['+', '-', '×', '÷'].contains(value)) {
+        _operation = 'kalkulator'; 
+        String text = _displayController.text;
+
+        if (text.endsWith(' + ') || text.endsWith(' - ') || text.endsWith(' × ') || text.endsWith(' ÷ ')) {
+          _displayController.text = text.substring(0, text.length - 3) + ' $value ';
+        } else if (text.isNotEmpty) {
+          _displayController.text += ' $value ';
+        } else if (value == '-') {
+          _displayController.text += '-';
+        }
+        return;
+      }
+
+      if (value == 'G/G') {
+        _operation = 'ganjil_genap';
         _hitung();
         return;
       }
 
-      switch (value) {
-        case '+':
-          _operation = 'penjumlahan';
-          _displayController.text += ' + ';
-          return;
-        case '-':
-          _operation = 'pengurangan';
-          _displayController.text += ' - ';
-          return;
-        case '×':
-          _operation = 'perkalian';
-          _displayController.text += ' × ';
-          return;
-        case '÷':
-          _operation = 'pembagian';
-          _displayController.text += ' ÷ ';
-          return;
-        case 'G/G':
-          _operation = 'ganjil_genap';
-          return;
-        case 'Deret':
-          _operation = 'deret';
-          return;
+      // Jika pindah mode ke Deret
+      if (value == 'Sn') {
+        _operation = 'deret';
+        _hitung(); 
+        return;
       }
 
       _displayController.text += value;
@@ -97,27 +92,35 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
 
   void _hitung() {
     final String raw = _displayController.text.trim();
-    if (raw.isEmpty) return;
+    if (raw.isEmpty) {
+      setState(() => _result = '');
+      return;
+    }
 
     if (_operation == 'ganjil_genap') {
-      final int? num = int.tryParse(raw);
+      final dynamic num = raw;
+      if (num is String) {
+        setState(() => _result = 'Nilai tidak valid!');{
+          return;
+        }
+      }
+      int.tryParse(raw);
       if (num == null) {
-        setState(() => _result = 'Masukkan angka bulat!');
+        setState(() => _result = 'Masukkan 1 angka bulat!');
         return;
       }
       setState(() {
-        _result =
-            '$num adalah Bilangan ${num % 2 == 0 ? "GENAP" : "GANJIL"}';
+        _result = '$num adalah Bilangan ${num % 2 == 0 ? "GENAP" : "GANJIL"}';
       });
       return;
     }
 
     if (_operation == 'deret') {
-      final List<String> items = raw.split(RegExp(r'[,\s]+'));
+      final List<String> items = raw.split(RegExp(r',+'));
       double total = 0;
       int count = 0;
       for (var item in items) {
-        double? val = double.tryParse(item);
+        double? val = double.tryParse(item.replaceAll(',', '.'));
         if (val != null) {
           total += val;
           count++;
@@ -126,45 +129,72 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
       setState(() {
         _result = count > 0
             ? 'Total $count data deret = ${_numFormat(total)}'
-            : 'Tidak ada data valid';
+            : 'Nilai tidak valid!';
       });
       return;
     }
 
-    final List<String> parts = raw.split(RegExp(r'\s+[+\-×÷]\s+'));
-    if (parts.length < 2) {
-      setState(() => _result = 'Masukkan angka yang valid!');
-      return;
+    try {
+      List<String> tokens = raw.split(' ').where((e) => e.isNotEmpty).toList();
+
+      if (tokens.isEmpty) return;
+
+      if (['+', '-', '×', '÷'].contains(tokens.last)) {
+        tokens.removeLast();
+      }
+
+      if (tokens.isEmpty) return; 
+
+      int i = 1;
+      while (i < tokens.length - 1) {
+        if (tokens[i] == '×' || tokens[i] == '÷') {
+          double a = double.parse(tokens[i - 1].replaceAll(',', '.'));
+          double b = double.parse(tokens[i + 1].replaceAll(',', '.'));
+
+          if (tokens[i] == '÷' && b == 0) {
+            setState(() => _result = 'Tidak dapat membagi dengan nol!');
+            return;
+          }
+
+          double res = tokens[i] == '×' ? a * b : a / b;
+          tokens.replaceRange(i - 1, i + 2, [res.toString()]);
+        } else {
+          i += 2;
+        }
+      }
+
+      i = 1;
+      while (i < tokens.length - 1) {
+        if (tokens[i] == '+' || tokens[i] == '-') {
+          double a = double.parse(tokens[i - 1].replaceAll(',', '.'));
+          double b = double.parse(tokens[i + 1].replaceAll(',', '.'));
+
+          double res = tokens[i] == '+' ? a + b : a - b;
+          tokens.replaceRange(i - 1, i + 2, [res.toString()]);
+        } else {
+          i += 2;
+        }
+      }
+
+      if (tokens.length == 1) {
+        double hasil = double.parse(tokens[0]);
+        setState(() {
+          _result = ' ${_numFormat(hasil)}';
+        });
+      }
+    } catch (e) {
     }
-
-    final double? a = double.tryParse(parts[0].trim());
-    final double? b = double.tryParse(parts[1].trim());
-
-    if (a == null || b == null) {
-      setState(() => _result = 'Masukkan angka yang valid!');
-      return;
-    }
-
-    if (b == 0 && _operation == 'pembagian') {
-      setState(() => _result = 'Tidak dapat membagi dengan nol!');
-      return;
-    }
-
-    final String simbol = _operations[_operation]!.simbol;
-    final double hasil = switch (_operation) {
-      'penjumlahan' => a + b,
-      'pengurangan' => a - b,
-      'perkalian' => a * b,
-      'pembagian' => a / b,
-      _ => 0,
-    };
-
-    setState(() {
-      _result = ' ${_numFormat(hasil)}';
-    });
   }
 
   String _numFormat(double value) {
+    double absVal = value.abs();
+
+    // Jika mencapai 1 miliar atau lebih, gunakan format eksponensial (e)
+    if (absVal >= 1000000000) {
+      return value.toStringAsExponential(0);
+    } 
+
+    // Format normal untuk angka biasa (menghilangkan .0 jika bilangan bulat)
     return value == value.roundToDouble()
         ? value.toStringAsFixed(0)
         : value.toString();
@@ -183,10 +213,9 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
 
   @override
   Widget build(BuildContext context) {
-
     return Scaffold(
       appBar: AppBar(
-        title: Text('Kalkulator'),
+        title: const Text('Kalkulator'),
         backgroundColor: Colors.deepPurple,
         foregroundColor: Colors.white,
       ),
@@ -203,32 +232,33 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
                     readOnly: true,
                     showCursor: true,
                     textAlign: TextAlign.right,
-                    style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 22, fontWeight: FontWeight.bold),
                     decoration: InputDecoration(
                       labelText: _operation == 'deret'
-                          ? 'Masukkan Deret (pisahkan dengan koma/spasi)'
-                          : 'Masukkan angka',
+                          ? 'Mode Deret (pisahkan koma)'
+                          : _operation == 'ganjil_genap'
+                              ? 'Mode Ganjil / Genap'
+                              : 'Mode Kalkulator',
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 20),
                   Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.deepPurple.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Text(
-                        _result,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                            fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.deepPurple.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(10),
                     ),
-                   
+                    child: Text(
+                      _result,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                          fontSize: 22, fontWeight: FontWeight.bold),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -243,7 +273,7 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 4,
                 crossAxisSpacing: 8,
-                mainAxisSpacing: 14,
+                mainAxisSpacing: 16,
                 childAspectRatio: 2.2,
               ),
               itemBuilder: (context, index) {
@@ -257,8 +287,7 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
                 } else if (btn == 'C' || btn == '⌫') {
                   btnColor = Colors.redAccent;
                   textColor = Colors.white;
-                } else if (['+', '-', '×', '÷', 'G/G', 'Deret']
-                    .contains(btn)) {
+                } else if (['+', '-', '×', '÷', 'G/G', 'Sn'].contains(btn)) {
                   btnColor = Colors.deepPurple.shade100;
                   textColor = Colors.deepPurple.shade900;
                 }
@@ -273,7 +302,7 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
                   onPressed: () => _onGridButtonPressed(btn),
                   child: Text(btn,
                       style: const TextStyle(
-                          fontSize: 18, fontWeight: FontWeight.bold)),
+                          fontSize: 22, fontWeight: FontWeight.w500)),
                 );
               },
             ),
@@ -282,12 +311,4 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
       ),
     );
   }
-}
-
-class OperationInfo {
-  const OperationInfo(this.nama, this.simbol, this.simbolTab);
-
-  final String nama;
-  final String simbol;
-  final String simbolTab;
 }
