@@ -200,11 +200,7 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
                 children: [
                   TextField(
                     controller: _displayController,
-                    onChanged: (value) {
-                      setState(() {
-                        _hitung();
-                      });
-                    },
+                    readOnly: true,
                     showCursor: true,
                     textAlign: TextAlign.right,
                     style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
