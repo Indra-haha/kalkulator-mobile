@@ -8,9 +8,7 @@ void main() {
 }
 
 class KalkulatorPage extends StatefulWidget {
-  const KalkulatorPage({super.key, this.initialOperation = 'penjumlahan'});
-
-  final String initialOperation;
+  const KalkulatorPage({super.key});
 
   @override
   State<KalkulatorPage> createState() => _KalkulatorPageState();
@@ -33,7 +31,7 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
   @override
   void initState() {
     super.initState();
-    _operation = widget.initialOperation;
+    _operation = "";
     _displayController.addListener(() {
       _hitung();
     });

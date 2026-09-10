@@ -42,11 +42,8 @@ class HomePage extends StatelessWidget {
               title: const Text('Kalkulator'),
               subtitle: const Text('Operasi matematika'),
               trailing: const Icon(Icons.chevron_right),
-              onTap: () => _openPage(
-                context,
-                const KalkulatorPage(initialOperation: 'penjumlahan'),
-                'kalkulator',
-              ),
+              onTap: () => 
+                  _openPage(context,const KalkulatorPage(),'kalkulator'),
             ),
           ),
         ],
