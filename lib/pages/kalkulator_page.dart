@@ -146,8 +146,7 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
       }
 
       setState(() {
-        _result =
-            '$angka adalah Bilangan ${angka % 2 == 0 ? "GENAP" : "GANJIL"}';
+        _result = '$angka adalah Bilangan ${angka % 2 == 0 ? "GENAP" : "GANJIL"}';
       });
       return;
     }
@@ -157,7 +156,7 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
       double total = 0;
       int count = 0;
       for (var item in items) {
-        double? val = double.tryParse(item.replaceAll(',', '.'));
+        double? val = double.tryParse(item.trim().replaceAll(',', '.'));
         if (val != null) {
           total += val;
           count++;
@@ -172,23 +171,33 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
     }
 
     try {
-      List<String> tokens = raw.split(' ').where((e) => e.isNotEmpty).toList();
+      // 1. TOKENISASI MENGGUNAKAN REGEX
+      // Pola ini mendeteksi angka (bisa desimal dengan koma/titik dan bisa negatif) 
+      // ATAU operator (+, -, ×, ÷) secara terpisah.
+      final RegExp regExp = RegExp(r'(-?\d+[\d,.]*|\+|\-|\×|\÷)');
+      final matches = regExp.allMatches(raw);
+      
+      List<String> tokens = matches.map((m) => m.group(0)!).toList();
 
       if (tokens.isEmpty) return;
 
+      // Jika token terakhir adalah operator, buang sementara agar tidak error saat dihitung
       if (['+', '-', '×', '÷'].contains(tokens.last)) {
         tokens.removeLast();
       }
 
       if (tokens.isEmpty) return;
 
-      int i = 0;
-      while (i < tokens.length) {
-        if (tokens[i] == '×' || tokens[i] == '÷') {
-          if (i + 1 >= tokens.length) break;
+      double parseVal(String s) {
+        return double.parse(s.replaceAll(',', '.'));
+      }
 
-          double a = double.parse(tokens[i - 1].replaceAll(',', '.'));
-          double b = double.parse(tokens[i + 1].replaceAll(',', '.'));
+      for (int i = 0; i < tokens.length; i++) {
+        if (tokens[i] == '×' || tokens[i] == '÷') {
+          if (i - 1 < 0 || i + 1 >= tokens.length) break;
+
+          double a = parseVal(tokens[i - 1]);
+          double b = parseVal(tokens[i + 1]);
 
           if (tokens[i] == '÷' && b == 0) {
             setState(() => _result = 'Tidak dapat membagi dengan nol!');
@@ -196,36 +205,36 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
           }
 
           double res = tokens[i] == '×' ? a * b : a / b;
+
           tokens.replaceRange(i - 1, i + 2, [res.toString()]);
-          i = 0;
-        } else {
-          i++;
+          i = i - 1; 
         }
       }
-      i = 0;
-      while (i < tokens.length) {
-        if (tokens[i] == '+' || tokens[i] == '-') {
-          if (i + 1 >= tokens.length) break;
 
-          double a = double.parse(tokens[i - 1].replaceAll(',', '.'));
-          double b = double.parse(tokens[i + 1].replaceAll(',', '.'));
+      for (int i = 0; i < tokens.length; i++) {
+        if (tokens[i] == '+' || tokens[i] == '-') {
+          if (i - 1 < 0 || i + 1 >= tokens.length) break;
+
+          double a = parseVal(tokens[i - 1]);
+          double b = parseVal(tokens[i + 1]);
 
           double res = tokens[i] == '+' ? a + b : a - b;
+
           tokens.replaceRange(i - 1, i + 2, [res.toString()]);
-          i = 0;
-        } else {
-          i++;
+          i = i - 1;
         }
       }
 
       if (tokens.length == 1) {
-        double hasil = double.parse(tokens[0]);
+        double hasil = parseVal(tokens[0]);
         setState(() {
           _result = ' ${_numFormat(hasil)}';
         });
       }
     } catch (e) {
-      // (Opsional) Anda bisa isi print(e); untuk melihat error di console jika terjadi kendala lain
+      setState(() {
+        _result = '';
+      });
     }
   }
 
