@@ -74,9 +74,13 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
           return;
         }
 
-        if(text.contains(RegExp(r',\s*-'))){
-           if (value == '-') {
-            _displayController.text = '-';
+        if ((text.endsWith(',') || text.endsWith(', ')) && value == '-') {
+          if (text.endsWith(', ')) {
+            // Hapus spasi setelah koma, lalu tempel minus (jadi "5,-")
+            _displayController.text = text.substring(0, text.length - 1) + '-';
+          } else {
+            // Langsung tempel minus di belakang koma (jadi "5,-")
+            _displayController.text += '-';
           }
           return;
         }
