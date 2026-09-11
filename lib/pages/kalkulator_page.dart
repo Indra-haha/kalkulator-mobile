@@ -23,11 +23,11 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
   String _result = '';
 
   final List<String> _gridButtons = [
-    'C','⌫','G/G','Sn',
-    '7','8','9','÷',
-    '4','5','6','×',
-    '1','2','3','-',
-    '0','.',',','+',
+    'C', '⌫', 'G/G', 'Sn',
+    '7', '8', '9', '÷', 
+    '4', '5', '6', '×',
+    '1', '2', '3', '-',
+    '0', '.', ',', '+',
   ];
 
   @override
@@ -64,8 +64,12 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
       }
 
       if (['+', '-', '×', '÷'].contains(value)) {
-        _operation = 'kalkulator';
         String text = _displayController.text;
+        _operation = '';
+
+        if (text.contains(',')) {
+          _operation = "deret";
+        }
 
         if (text.isEmpty) {
           if (value == '-') {
@@ -95,12 +99,9 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
             _displayController.text =
                 text.substring(0, text.length - 3) + ' $value ';
           }
-        }
-      
-        else if (text.endsWith('-') && !text.endsWith(' - ')) {
-          return; 
-        }
-        else {
+        } else if (text.endsWith('-') && !text.endsWith(' - ')) {
+          return;
+        } else {
           _displayController.text += ' $value ';
         }
         return;
@@ -130,11 +131,11 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
       return;
     }
 
-   if (_operation == 'ganjil_genap') {
+    if (_operation == 'ganjil_genap') {
       final bool validAngka = RegExp(r'^-?\d+$').hasMatch(raw);
-  
+
       if (!validAngka) {
-        setState(() => _result = 'Masukkan 1 angka bulat! yg valid');
+        setState(() => _result = 'Masukkan angka valid!');
         return;
       }
 
@@ -145,7 +146,8 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
       }
 
       setState(() {
-        _result = '$angka adalah Bilangan ${angka % 2 == 0 ? "GENAP" : "GANJIL"}';
+        _result =
+            '$angka adalah Bilangan ${angka % 2 == 0 ? "GENAP" : "GANJIL"}';
       });
       return;
     }
@@ -180,9 +182,11 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
 
       if (tokens.isEmpty) return;
 
-      int i = 1;
-      while (i < tokens.length - 1) {
+      int i = 0;
+      while (i < tokens.length) {
         if (tokens[i] == '×' || tokens[i] == '÷') {
+          if (i + 1 >= tokens.length) break;
+
           double a = double.parse(tokens[i - 1].replaceAll(',', '.'));
           double b = double.parse(tokens[i + 1].replaceAll(',', '.'));
 
@@ -193,21 +197,24 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
 
           double res = tokens[i] == '×' ? a * b : a / b;
           tokens.replaceRange(i - 1, i + 2, [res.toString()]);
+          i = 0;
         } else {
-          i += 2;
+          i++;
         }
       }
-
-      i = 1;
-      while (i < tokens.length - 1) {
+      i = 0;
+      while (i < tokens.length) {
         if (tokens[i] == '+' || tokens[i] == '-') {
+          if (i + 1 >= tokens.length) break;
+
           double a = double.parse(tokens[i - 1].replaceAll(',', '.'));
           double b = double.parse(tokens[i + 1].replaceAll(',', '.'));
 
           double res = tokens[i] == '+' ? a + b : a - b;
           tokens.replaceRange(i - 1, i + 2, [res.toString()]);
+          i = 0;
         } else {
-          i += 2;
+          i++;
         }
       }
 
@@ -217,7 +224,9 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
           _result = ' ${_numFormat(hasil)}';
         });
       }
-    } catch (e) {}
+    } catch (e) {
+      // (Opsional) Anda bisa isi print(e); untuk melihat error di console jika terjadi kendala lain
+    }
   }
 
   String _numFormat(double value) {
