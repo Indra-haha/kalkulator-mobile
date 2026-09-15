@@ -1,6 +1,6 @@
 {
-    "name": "tugas_1_kalkulator",
-    "short_name": "tugas_1_kalkulator",
+    "name": "Numerus",
+    "short_name": "Numerus",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
