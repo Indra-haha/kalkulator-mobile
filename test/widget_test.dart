@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:tugas_1_kalkulator/main.dart';
+import '../lib/main.dart';
 
 void main() {
   setUp(() {
