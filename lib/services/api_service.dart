@@ -30,11 +30,11 @@ class ApiService {
   // Android emulator memakai 10.0.2.2 untuk mengakses localhost dari host.
   // Untuk device fisik, ganti dengan IP komputer (mis. https://192.168.1.10:8080).
  static String get baseUrl {
-    if (kIsWeb) return 'https://deera-server.my.id:8080';
+    if (kIsWeb) return 'https://deera-server.my.id';
     if (defaultTargetPlatform == TargetPlatform.android) {
-      return 'https://deera-server.my.id:8080';
+      return 'https://deera-server.my.id';
     }
-    return 'https://deera-server.my.id:8080';
+    return 'https://deera-server.my.id';
   }
 
   Map<String, String> _headers({String? token}) => {
