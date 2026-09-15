@@ -110,14 +110,15 @@ class _LoginPageState extends State<LoginPage> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const Icon(
-                      Icons.calculate_outlined,
-                      size: 64,
-                      color: Colors.deepPurple,
+                    Image.asset(
+                      'lib/assets/icon/logo.png', 
+                      width: 64, 
+                      height: 64, 
+                      fit: BoxFit.contain, 
                     ),
                     const SizedBox(height: 8),
                     const Text(
-                      'Login Aplikasi Kalkulator',
+                      'Everything about Numbers',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 22,
