@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
+import '../services/api_service.dart';
+import '../services/session_service.dart';
 import 'home_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -10,31 +14,78 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _nimController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _isLoading = false;
 
-  void _login() {
-    final String username = _usernameController.text.trim();
+  @override
+  void initState() {
+    super.initState();
+    _restoreSession();
+  }
+
+  // Jika masih ada session tersimpan yang valid, langsung masuk ke menu utama.
+  Future<void> _restoreSession() async {
+    final token = await SessionService.instance.getToken();
+    if (token == null || !mounted) return;
+
+    setState(() => _isLoading = true);
+    try {
+      final user = await ApiService.instance.checkSession(token);
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => HomePage(user: user)),
+      );
+    } catch (_) {
+      await SessionService.instance.clear();
+      if (!mounted) return;
+      setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _login() async {
+    if (_isLoading) return;
+    final String nim = _nimController.text.trim();
     final String password = _passwordController.text;
 
-    if (username == 'admin' && password == 'admin123') {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const HomePage()),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Username atau password salah!'),
-          backgroundColor: Colors.red,
-        ),
-      );
+    if (nim.isEmpty || password.isEmpty) {
+      _showError('NIM dan password wajib diisi');
+      return;
     }
+
+    setState(() => _isLoading = true);
+    try {
+      final result = await ApiService.instance.login(
+        nim: nim,
+        password: password,
+      );
+      await SessionService.instance.saveSession(result.token, result.user);
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (_) => HomePage(user: result.user)),
+      );
+    } on TimeoutException {
+      _showError('Server tidak merespons. Pastikan backend berjalan.');
+    } on ApiException catch (e) {
+      _showError(e.message);
+    } catch (_) {
+      _showError('Tidak dapat terhubung ke server.');
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  void _showError(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
+    );
   }
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    _nimController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -76,9 +127,10 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 24),
                     TextField(
-                      controller: _usernameController,
+                      controller: _nimController,
+                      enabled: !_isLoading,
                       decoration: const InputDecoration(
-                        labelText: 'Username',
+                        labelText: 'NIM',
                         prefixIcon: Icon(Icons.person_outline),
                         border: OutlineInputBorder(),
                       ),
@@ -87,6 +139,7 @@ class _LoginPageState extends State<LoginPage> {
                     TextField(
                       controller: _passwordController,
                       obscureText: _obscurePassword,
+                      enabled: !_isLoading,
                       onSubmitted: (_) => _login(),
                       decoration: InputDecoration(
                         labelText: 'Password',
@@ -108,7 +161,7 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 24),
                     ElevatedButton(
-                      onPressed: _login,
+                      onPressed: _isLoading ? null : _login,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.deepPurple,
                         foregroundColor: Colors.white,
@@ -117,11 +170,20 @@ class _LoginPageState extends State<LoginPage> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      child: const Text('Login'),
+                      child: _isLoading
+                          ? const SizedBox(
+                              width: 22,
+                              height: 22,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : const Text('Login'),
                     ),
                     const SizedBox(height: 12),
                     const Text(
-                      'Default: username "admin" dan password "admin123"',
+                      'Silakan login menggunakan NIM (password = NIM)',
                       textAlign: TextAlign.center,
                       style: TextStyle(fontSize: 12, color: Colors.grey),
                     ),

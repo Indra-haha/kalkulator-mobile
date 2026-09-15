@@ -328,9 +328,9 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
               itemCount: _gridButtons.length,
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 4,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 16,
-                childAspectRatio: 2.2,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+                childAspectRatio: 1.8,
               ),
               itemBuilder: (context, index) {
                 final btn = _gridButtons[index];
@@ -353,7 +353,7 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
                     backgroundColor: btnColor,
                     foregroundColor: textColor,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(12),
                     ),
                   ),
                   onPressed: () => _onGridButtonPressed(btn),
