@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 import '../services/session_service.dart';
 import 'home_page.dart';
+import 'regis_page.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -183,10 +184,32 @@ class _LoginPageState extends State<LoginPage> {
                           : const Text('Login'),
                     ),
                     const SizedBox(height: 12),
-                    const Text(
-                      'Silakan login menggunakan NIM (password = NIM)',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
+
+TextButton(
+  onPressed: () {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const RegisterPage(),
+      ),
+    );
+  },
+  child: const Text(
+    'Belum punya akun? Registrasi',
+    style: TextStyle(
+      color: Colors.deepPurple,
+      fontWeight: FontWeight.w600,
+    ),
+  ),
+),
+
+const Text(
+  'Silakan login menggunakan NIM (password = NIM)',
+  textAlign: TextAlign.center,
+  style: TextStyle(
+    fontSize: 12,
+    color: Colors.grey,
+  ),
                     ),
                   ],
                 ),
