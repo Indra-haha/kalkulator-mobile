@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../services/api_service.dart';
 import '../services/session_service.dart';
 import 'kelompok_page.dart';
 import 'kalkulator_page.dart';
 import 'konversi_page.dart';
+import 'login_page.dart';
 
 class HomePage extends StatefulWidget {
   final Map<String, dynamic>? user;
@@ -16,7 +18,8 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   Map<String, dynamic>? _user;
-
+  bool _loggingOut = false; 
+  
   @override
   void initState() {
     super.initState();
@@ -40,6 +43,27 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Future<void> _logout() async {
+    if (_loggingOut) return;
+    setState(() => _loggingOut = true);
+
+    final token = await SessionService.instance.getToken();
+    try {
+      if (token != null) {
+        // Hapus session di backend (token di-blacklist -> expired).
+        await ApiService.instance.logout(token);
+      }
+    } catch (_) {
+      // Backend tidak terjangkau; session lokal tetap dihapus.
+    }
+    await SessionService.instance.clear();
+    if (!mounted) return;
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const LoginPage()),
+      (route) => false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = _user;
@@ -51,6 +75,22 @@ class _HomePageState extends State<HomePage> {
         title: const Text('Menu Utama'),
         backgroundColor: Colors.deepPurple,
         foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            tooltip: 'Logout',
+            onPressed: _loggingOut ? null : _logout,
+            icon: _loggingOut
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: Colors.white,
+                    ),
+                  )
+                : const Icon(Icons.logout),
+          ),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
