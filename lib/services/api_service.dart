@@ -64,6 +64,38 @@ class ApiService {
     );
   }
 
+  Future<void> register({
+  required String nama,
+  required String nim,
+  required String kelas,
+  required String tanggalLahir,
+  required String password,
+}) async {
+  final response = await http
+      .post(
+        Uri.parse('$baseUrl/api/register'),
+        headers: _headers(),
+        body: jsonEncode({
+          'nama': nama,
+          'nim': nim,
+          'kelas': kelas,
+          'tanggal_lahir': tanggalLahir,
+          'password': password,
+        }),
+      )
+      .timeout(const Duration(seconds: 10));
+
+  final data = _decode(response);
+
+  if (response.statusCode != 200 &&
+      response.statusCode != 201) {
+    throw ApiException(
+      _message(data),
+      statusCode: response.statusCode,
+    );
+  }
+}
+
   Future<void> logout(String token) async {
     final response = await http
         .post(
