@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
-import '../services/api_service.dart';
+import '../services/auth_service.dart';
 import '../services/session_service.dart';
-import 'kelompok_page.dart';
+import 'quiz_page.dart';
 import 'kalkulator_page.dart';
 import 'konversi_page.dart';
 import 'login_page.dart';
@@ -19,7 +19,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   Map<String, dynamic>? _user;
   bool _loggingOut = false; 
-  
+
   @override
   void initState() {
     super.initState();
@@ -51,7 +51,7 @@ class _HomePageState extends State<HomePage> {
     try {
       if (token != null) {
         // Hapus session di backend (token di-blacklist -> expired).
-        await ApiService.instance.logout(token);
+        await AuthService.instance.logout(token);
       }
     } catch (_) {
       // Backend tidak terjangkau; session lokal tetap dihapus.
@@ -125,16 +125,24 @@ class _HomePageState extends State<HomePage> {
                 child: ListTile(
                   leading: const Icon(Icons.group, color: Colors.deepPurple),
                   title: const Text(
-                    'Data Kelompok',
+                    'My Quiz',
                     style: TextStyle(fontSize: 16),
                   ),
                   subtitle: const Text(
-                    'Lihat data anggota kelompok',
+                    'Show my quiz data',
                     style: TextStyle(fontSize: 14),
                   ),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () =>
-                      _openPage(context, const KelompokPage(), 'data-kelompok'),
+                    onTap: () => _openPage(
+                      context,
+                      QuizPage(
+                        user: user,
+                        userId: user?['id'] == null
+                            ? null
+                            : int.tryParse('${user?['id']}'),
+                      ),
+                      'quiz',
+                    ),
                 ),
               ),
               const SizedBox(height: 12),

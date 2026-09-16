@@ -1,7 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import '../services/api_service.dart';
+import '../services/api_client.dart';
+import '../services/auth_service.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -77,7 +78,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
     setState(() => _isLoading = true);
     try {
-      await ApiService.instance.register(
+      final user = await AuthService.instance.register(
         nama: nama,
         nim: nim,
         kelas: kelas,
@@ -85,7 +86,10 @@ class _RegisterPageState extends State<RegisterPage> {
         password: password,
       );
       if (!mounted) return;
-      _showMessage("Registrasi berhasil", Colors.green);
+      _showMessage(
+        'Registrasi berhasil, a/n ${user.nama} (NIM ${user.nim})',
+        Colors.green,
+      );
       Future.delayed(
         const Duration(seconds: 1),
         () {

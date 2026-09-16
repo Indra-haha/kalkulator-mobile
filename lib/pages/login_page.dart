@@ -2,7 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../services/api_service.dart';
+import '../services/api_client.dart';
+import '../services/auth_service.dart';
 import '../services/session_service.dart';
 import 'button.dart';
 import 'regis_page.dart';
@@ -33,7 +34,7 @@ class _LoginPageState extends State<LoginPage> {
 
     setState(() => _isLoading = true);
     try {
-      final user = await ApiService.instance.checkSession(token);
+      final user = await AuthService.instance.checkSession(token);
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (_) => MainShell(user: user)),
@@ -57,7 +58,7 @@ class _LoginPageState extends State<LoginPage> {
 
     setState(() => _isLoading = true);
     try {
-      final result = await ApiService.instance.login(
+      final result = await AuthService.instance.login(
         nim: nim,
         password: password,
       );
