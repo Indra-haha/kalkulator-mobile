@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../services/api_service.dart';
 import '../services/session_service.dart';
-import 'home_page.dart';
+import 'button.dart';
 import 'regis_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -36,7 +36,7 @@ class _LoginPageState extends State<LoginPage> {
       final user = await ApiService.instance.checkSession(token);
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => HomePage(user: user)),
+        MaterialPageRoute(builder: (_) => MainShell(user: user)),
       );
     } catch (_) {
       await SessionService.instance.clear();
@@ -64,7 +64,7 @@ class _LoginPageState extends State<LoginPage> {
       await SessionService.instance.saveSession(result.token, result.user);
       if (!mounted) return;
       Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => HomePage(user: result.user)),
+        MaterialPageRoute(builder: (_) => MainShell(user: result.user)),
       );
     } on TimeoutException {
       _showError('Server tidak merespons. Pastikan backend berjalan.');
@@ -112,10 +112,10 @@ class _LoginPageState extends State<LoginPage> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Image.asset(
-                      'lib/assets/icon/logo.png', 
-                      width: 64, 
-                      height: 64, 
-                      fit: BoxFit.contain, 
+                      'lib/assets/icon/logo.png',
+                      width: 64,
+                      height: 64,
+                      fit: BoxFit.contain,
                     ),
                     const SizedBox(height: 8),
                     const Text(
@@ -185,31 +185,28 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const SizedBox(height: 12),
 
-TextButton(
-  onPressed: () {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const RegisterPage(),
-      ),
-    );
-  },
-  child: const Text(
-    'Belum punya akun? Registrasi',
-    style: TextStyle(
-      color: Colors.deepPurple,
-      fontWeight: FontWeight.w600,
-    ),
-  ),
-),
+                    TextButton(
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const RegisterPage(),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        'Belum punya akun? Registrasi',
+                        style: TextStyle(
+                          color: Colors.deepPurple,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
 
-const Text(
-  'Silakan login menggunakan NIM (password = NIM)',
-  textAlign: TextAlign.center,
-  style: TextStyle(
-    fontSize: 12,
-    color: Colors.grey,
-  ),
+                    const Text(
+                      'Silakan login menggunakan NIM (password = NIM)',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                   ],
                 ),

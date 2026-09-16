@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 
-import '../services/api_service.dart';
 import '../services/session_service.dart';
 import 'kelompok_page.dart';
-import 'login_page.dart';
 import 'kalkulator_page.dart';
+import 'konversi_page.dart';
 
 class HomePage extends StatefulWidget {
   final Map<String, dynamic>? user;
@@ -17,7 +16,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   Map<String, dynamic>? _user;
-  bool _loggingOut = false;
 
   @override
   void initState() {
@@ -42,27 +40,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<void> _logout() async {
-    if (_loggingOut) return;
-    setState(() => _loggingOut = true);
-
-    final token = await SessionService.instance.getToken();
-    try {
-      if (token != null) {
-        // Hapus session di backend (token di-blacklist -> expired).
-        await ApiService.instance.logout(token);
-      }
-    } catch (_) {
-      // Backend tidak terjangkau; session lokal tetap dihapus.
-    }
-    await SessionService.instance.clear();
-    if (!mounted) return;
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const LoginPage()),
-      (route) => false,
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final user = _user;
@@ -74,69 +51,93 @@ class _HomePageState extends State<HomePage> {
         title: const Text('Menu Utama'),
         backgroundColor: Colors.deepPurple,
         foregroundColor: Colors.white,
-        actions: [
-          IconButton(
-            tooltip: 'Logout',
-            onPressed: _loggingOut ? null : _logout,
-            icon: _loggingOut
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
-                : const Icon(Icons.logout),
-          ),
-        ],
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(16.0),
-        children: [
-          if (user != null)
-            Card(
-              color: Colors.deepPurple.shade50,
-              child: ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: Colors.deepPurple,
-                  foregroundColor: Colors.white,
-                  child: Text(
-                    nama.isNotEmpty ? nama[0].toUpperCase() : '?',
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (user != null)
+                Card(
+                  color: Colors.deepPurple.shade50,
+                  child: ListTile(
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.deepPurple,
+                      foregroundColor: Colors.white,
+                      child: Text(
+                        nama.isNotEmpty ? nama[0].toUpperCase() : '?',
+                      ),
+                    ),
+                    title: Text(
+                      nama.isEmpty ? 'Selamat datang' : 'Halo, $nama',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.deepPurple,
+                      ),
+                    ),
+                    subtitle: nim.isEmpty ? null : Text('NIM: $nim'),
                   ),
                 ),
-                title: Text(
-                  nama.isEmpty ? 'Selamat datang' : 'Halo, $nama',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
+              const SizedBox(height: 12),
+              Card(
+                child: ListTile(
+                  leading: const Icon(Icons.group, color: Colors.deepPurple),
+                  title: const Text(
+                    'Data Kelompok',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  subtitle: const Text(
+                    'Lihat data anggota kelompok',
+                    style: TextStyle(fontSize: 14),
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () =>
+                      _openPage(context, const KelompokPage(), 'data-kelompok'),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Card(
+                child: ListTile(
+                  leading: const Icon(
+                    Icons.calculate,
                     color: Colors.deepPurple,
                   ),
+                  title: const Text(
+                    'Kalkulator',
+                    style: TextStyle(fontSize: 16),
+                  ),
+                  subtitle: const Text(
+                    'Menu komputasi sesuai tema',
+                    style: TextStyle(fontSize: 14),
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () =>
+                      _openPage(context, const KalkulatorPage(), 'kalkulator'),
                 ),
-                subtitle: nim.isEmpty ? null : Text('NIM: $nim'),
               ),
-            ),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.group, color: Colors.deepPurple),
-              title: const Text('Data Kelompok', style: TextStyle(fontSize: 16)),
-              subtitle: const Text('Lihat data anggota kelompok', style: TextStyle(fontSize: 14)),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () =>
-                  _openPage(context, const KelompokPage(), 'data-kelompok'),
-            ),
+              const SizedBox(height: 12),
+              Card(
+                child: ListTile(
+                  leading: const Icon(
+                    Icons.swap_horiz,
+                    color: Colors.deepPurple,
+                  ),
+                  title: const Text('Konversi', style: TextStyle(fontSize: 16)),
+                  subtitle: const Text(
+                    'Konversi tanggal dan kalender',
+                    style: TextStyle(fontSize: 14),
+                  ),
+                  trailing: const Icon(Icons.chevron_right),
+                  onTap: () =>
+                      _openPage(context, const KonversiPage(), 'konversi'),
+                ),
+              ),
+              // TODO: tambahkan Card menu CRUD sesuai tema aplikasi kalian di sini.
+            ],
           ),
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.calculate, color: Colors.deepPurple),
-              title: const Text('Kalkulator', style: TextStyle(fontSize: 16)),
-              subtitle: const Text('Operasi matematika', style: TextStyle(fontSize: 14)),
-              trailing: const Icon(Icons.chevron_right),
-              onTap: () =>
-                  _openPage(context, const KalkulatorPage(), 'kalkulator'),
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
