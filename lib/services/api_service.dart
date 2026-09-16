@@ -29,7 +29,7 @@ class ApiService {
 
   // Android emulator memakai 10.0.2.2 untuk mengakses localhost dari host.
   // Untuk device fisik, ganti dengan IP komputer (mis. https://192.168.1.10:8080).
- static String get baseUrl {
+  static String get baseUrl {
     if (kIsWeb) return 'https://deera-server.my.id';
     if (defaultTargetPlatform == TargetPlatform.android) {
       return 'https://deera-server.my.id';
@@ -38,9 +38,9 @@ class ApiService {
   }
 
   Map<String, String> _headers({String? token}) => {
-        'Content-Type': 'application/json',
-        if (token != null) 'Authorization': 'Bearer $token',
-      };
+    'Content-Type': 'application/json',
+    if (token != null) 'Authorization': 'Bearer $token',
+  };
 
   Future<LoginResult> login({
     required String nim,
@@ -65,43 +65,38 @@ class ApiService {
   }
 
   Future<void> register({
-  required String nama,
-  required String nim,
-  required String kelas,
-  required String tanggalLahir,
-  required String password,
-}) async {
-  final response = await http
-      .post(
-        Uri.parse('$baseUrl/api/register'),
-        headers: _headers(),
-        body: jsonEncode({
-          'nama': nama,
-          'nim': nim,
-          'kelas': kelas,
-          'tanggal_lahir': tanggalLahir,
-          'password': password,
-        }),
-      )
-      .timeout(const Duration(seconds: 10));
+    required String nama,
+    required String nim,
+    required String kelas,
+    required String tanggalLahir,
+    required String password,
+  }) async {
+    final response = await http
+        .post(
+          Uri.parse('$baseUrl/api/register'),
+          headers: _headers(),
+          body: jsonEncode({
+            'nama': nama,
+            'nim': nim,
+            'kelas': kelas,
+            'tanggal_lahir': tanggalLahir,
+            'password': password,
+          }),
+        )
+        .timeout(const Duration(seconds: 10));
 
-  final data = _decode(response);
+    final data = _decode(response);
 
-  if (response.statusCode != 200 &&
-      response.statusCode != 201) {
-    throw ApiException(
-      _message(data),
-      statusCode: response.statusCode,
-    );
+    if (response.statusCode != 200 && response.statusCode != 201) {
+      throw ApiException(_message(data), statusCode: response.statusCode);
+    }
+
+
   }
-}
 
   Future<void> logout(String token) async {
     final response = await http
-        .post(
-          Uri.parse('$baseUrl/api/logout'),
-          headers: _headers(token: token),
-        )
+        .post(Uri.parse('$baseUrl/api/logout'), headers: _headers(token: token))
         .timeout(const Duration(seconds: 10));
     if (response.statusCode != 200) {
       throw ApiException(
@@ -113,10 +108,7 @@ class ApiService {
 
   Future<Map<String, dynamic>> checkSession(String token) async {
     final response = await http
-        .get(
-          Uri.parse('$baseUrl/api/session'),
-          headers: _headers(token: token),
-        )
+        .get(Uri.parse('$baseUrl/api/session'), headers: _headers(token: token))
         .timeout(const Duration(seconds: 10));
     final data = _decode(response);
     if (response.statusCode != 200) {
@@ -127,10 +119,7 @@ class ApiService {
 
   Future<List<Anggota>> getAnggota(String token) async {
     final response = await http
-        .get(
-          Uri.parse('$baseUrl/api/anggota'),
-          headers: _headers(token: token),
-        )
+        .get(Uri.parse('$baseUrl/api/anggota'), headers: _headers(token: token))
         .timeout(const Duration(seconds: 10));
     final data = _decode(response);
     if (response.statusCode != 200) {

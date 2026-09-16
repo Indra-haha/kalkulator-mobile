@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
 
@@ -12,8 +14,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController _namaController = TextEditingController();
   final TextEditingController _nimController = TextEditingController();
   final TextEditingController _kelasController = TextEditingController();
-  final TextEditingController _tanggalLahirController =
-      TextEditingController();
+  final TextEditingController _tanggalLahirController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _confirmPasswordController =
       TextEditingController();
@@ -38,11 +39,24 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
+  String _formatTanggalLahir(String tanggalLahir) {
+    final parts = tanggalLahir.split('/');
+    if (parts.length != 3) return tanggalLahir;
+    final day = int.tryParse(parts[0]);
+    final month = int.tryParse(parts[1]);
+    final year = int.tryParse(parts[2]);
+    if (day == null || month == null || year == null) return tanggalLahir;
+    return '${year.toString().padLeft(4, '0')}-'
+        '${month.toString().padLeft(2, '0')}-'
+        '${day.toString().padLeft(2, '0')}';
+  }
+
   Future<void> _register() async {
+    if (_isLoading) return;
     final nama = _namaController.text.trim();
     final nim = _nimController.text.trim();
     final kelas = _kelasController.text.trim();
-    final tanggalLahir = _tanggalLahirController.text.trim();
+    final tanggalLahir = _formatTanggalLahir(_tanggalLahirController.text.trim());
     final password = _passwordController.text;
     final confirmPassword = _confirmPasswordController.text;
 
@@ -62,33 +76,38 @@ class _RegisterPageState extends State<RegisterPage> {
     }
 
     setState(() => _isLoading = true);
-
-   await ApiService.instance.register(
-  nama: nama,
-  nim: nim,
-  kelas: kelas,
-  tanggalLahir: tanggalLahir,
-  password: password,
-);
-
-    if (!mounted) return;
-
-    setState(() => _isLoading = false);
-
-    _showMessage("Registrasi berhasil", Colors.green);
-
-    Future.delayed(const Duration(seconds: 1), () {
-      Navigator.pop(context);
-    });
+    try {
+      await ApiService.instance.register(
+        nama: nama,
+        nim: nim,
+        kelas: kelas,
+        tanggalLahir: tanggalLahir,
+        password: password,
+      );
+      if (!mounted) return;
+      _showMessage("Registrasi berhasil", Colors.green);
+      Future.delayed(
+        const Duration(seconds: 1),
+        () {
+          if (!mounted) return;
+          Navigator.pop(context);
+        },
+      );
+    } on TimeoutException {
+      _showMessage("Server tidak merespons. Pastikan backend berjalan.", Colors.red);
+    } on ApiException catch (e) {
+      _showMessage(e.message, Colors.red);
+    } catch (_) {
+      _showMessage("Tidak dapat terhubung ke server.", Colors.red);
+    } finally {
+      if (mounted) setState(() => _isLoading = false);
+    }
   }
 
   void _showMessage(String message, Color color) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: color,
-      ),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: color));
   }
 
   @override
@@ -234,8 +253,7 @@ class _RegisterPageState extends State<RegisterPage> {
                         ),
                         onPressed: () {
                           setState(() {
-                            _obscureConfirmPassword =
-                                !_obscureConfirmPassword;
+                            _obscureConfirmPassword = !_obscureConfirmPassword;
                           });
                         },
                       ),
@@ -276,9 +294,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       },
                       child: const Text(
                         'Sudah punya akun? Login',
-                        style: TextStyle(
-                          color: Colors.deepPurple,
-                        ),
+                        style: TextStyle(color: Colors.deepPurple),
                       ),
                     ),
                   ],
