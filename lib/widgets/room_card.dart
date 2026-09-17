@@ -4,7 +4,6 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../models/quiz.dart';
 import '../theme/app_theme.dart';
-import 'status_badge.dart';
 
 class RoomCard extends StatelessWidget {
   final Quizes quiz;
@@ -20,81 +19,48 @@ class RoomCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.neutralBorder),
-          boxShadow: const [
-            BoxShadow(
-              color: Color(0x0C000000),
-              blurRadius: 2,
-              offset: Offset(0, 1),
-            ),
-          ],
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.only(right: 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: StatusBadge.dotColor(room.status),
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            quiz.title,
-                            style: AppTextStyles.heading2,
-                          ),
-                        ),
-                      ],
-                    ),
-                    if (quiz.description.isNotEmpty) ...[
-                      const SizedBox(height: 3),
-                      Text(
-                        quiz.description,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTextStyles.bodyCaption,
-                      ),
-                    ],
-                  ],
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.neutralBorder),
+        boxShadow: const [
+          BoxShadow(
+            color: Color(0x0C000000),
+            blurRadius: 2,
+            offset: Offset(0, 1),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 12),
+                  child: Text(
+                    quiz.title,
+                    style: AppTextStyles.heading2,
+                  ),
                 ),
               ),
-            ),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                StatusBadge.fromLabel(room.status),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    _codeChip(),
-                    const SizedBox(width: 6),
-                    _copyButton(context),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ),
+              _codeChip(),
+              const SizedBox(width: 6),
+              _copyButton(context),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Align(
+            alignment: Alignment.centerRight,
+            child: _monitorButton(context),
+          ),
+        ],
       ),
     );
   }
@@ -154,6 +120,36 @@ class RoomCard extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _monitorButton(BuildContext context) {
+    return Material(
+      color: AppColors.successDark,
+      borderRadius: BorderRadius.circular(12),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(12),
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(Icons.visibility, size: 14, color: Colors.white),
+              const SizedBox(width: 6),
+              Text(
+                'Pantau Live',
+                style: GoogleFonts.plusJakartaSans(
+                  color: Colors.white,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  height: 1.33,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -6,6 +6,8 @@ class Room {
   final String kode;
   final String status;
   final String createdAt;
+  final String? judul;
+  final String? isi;
   final QuizSummary? quiz;
 
   const Room({
@@ -14,6 +16,8 @@ class Room {
     required this.kode,
     required this.status,
     required this.createdAt,
+    this.judul,
+    this.isi,
     this.quiz,
   });
 
@@ -24,6 +28,8 @@ class Room {
       kode: json['kode'] as String? ?? '',
       status: json['status'] as String? ?? 'waiting',
       createdAt: json['created_at'] as String? ?? '',
+      judul: json['judul'] as String?,
+      isi: json['isi'] as String?,
       quiz: json['quiz'] == null
           ? null
           : QuizSummary.fromJson((json['quiz'] as Map).cast<String, dynamic>()),

@@ -56,7 +56,7 @@ class QuarantineCard extends StatelessWidget {
                         'Quarantine',
                         style: GoogleFonts.plusJakartaSans(
                           color: AppColors.brandDeep,
-                          fontSize: 11,
+                          fontSize: 12,
                           fontWeight: FontWeight.w700,
                           height: 1.50,
                         ),
@@ -81,7 +81,7 @@ class QuarantineCard extends StatelessWidget {
                 width: double.infinity,
                 child: Text(
                   quiz.description,
-                  style: AppTextStyles.bodyCaption,
+                  style: AppTextStyles.bodyMeta,
                 ),
               ),
             ],
@@ -120,7 +120,7 @@ class QuarantineCard extends StatelessWidget {
           '$minutes menit',
           style: GoogleFonts.plusJakartaSans(
             color: AppColors.ink,
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: FontWeight.w700,
             height: 1.50,
           ),
@@ -141,7 +141,7 @@ class QuarantineCard extends StatelessWidget {
         '${quiz.rooms.length} Game',
         style: GoogleFonts.plusJakartaSans(
           color: AppColors.brandDeep,
-          fontSize: 11,
+          fontSize: 12,
           fontWeight: FontWeight.w700,
           height: 1.50,
         ),

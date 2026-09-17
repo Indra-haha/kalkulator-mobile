@@ -52,8 +52,8 @@ class AppPillButton extends StatelessWidget {
                 children: [
                   if (showProgress)
                     const SizedBox(
-                      width: 14,
-                      height: 14,
+                      width: 20,
+                      height: 20,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
                         color: Colors.white,
@@ -66,11 +66,11 @@ class AppPillButton extends StatelessWidget {
                   Text(
                     label,
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.montserrat(
-                      color: Colors.white,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400,
-                      height: 2,
+                    style: GoogleFonts.plusJakartaSans(
+                      color: AppColors.background,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      height: 1.5,
                     ),
                   ),
                 ],

@@ -6,6 +6,7 @@ import '../../services/api_client.dart';
 import '../../services/quiz_service.dart';
 import '../../services/session_service.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/app_header_bar.dart';
 
 const _fieldBg = Color(0xFFF0F3FF);
 const _placeholder = Color(0xFF6B7280);
@@ -190,77 +191,14 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: Column(
-          children: [
-            _buildHeader(),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.fromLTRB(20, 24, 20, 40),
-                children: [
-                  _buildLabel('Judul Quiz'),
-                  const SizedBox(height: 8),
-                  _buildTitleField(),
-                  const SizedBox(height: 20),
-                  _buildLabel('Deskripsi'),
-                  const SizedBox(height: 8),
-                  _buildDescriptionField(),
-                  const SizedBox(height: 24),
-                  for (var i = 0; i < _questions.length; i++) ...[
-                    _buildQuestionCard(i),
-                    const SizedBox(height: 20),
-                  ],
-                  _buildAddQuestionButton(),
-                ],
-              ),
-            ),
-          ],
+      appBar: AppHeaderBar(
+        title: 'QUIZRUSH',
+        leading: IconButton(
+          tooltip: 'Kembali',
+          onPressed: _saving ? null : () => Navigator.of(context).pop(false),
+          icon: const Icon(Icons.arrow_back),
         ),
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: const BoxDecoration(
-        color: AppColors.cardBg,
-        boxShadow: [
-          BoxShadow(
-            color: Color(0x14000000),
-            blurRadius: 8,
-            offset: Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              'QUIZRUSH',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.montserrat(
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
-                fontStyle: FontStyle.italic,
-                letterSpacing: -1.2,
-                color: AppColors.primary,
-              ),
-            ),
-          ),
-          TextButton(
-            onPressed: _saving ? null : () => Navigator.of(context).pop(false),
-            child: Text(
-              'Batal',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 14,
-                fontWeight: FontWeight.w700,
-                color: AppColors.muted,
-              ),
-            ),
-          ),
-          const SizedBox(width: 4),
+        actions: [
           FilledButton(
             onPressed: _saving ? null : _save,
             style: FilledButton.styleFrom(
@@ -286,6 +224,30 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 40),
+              children: [
+                _buildLabel('Judul Quiz'),
+                const SizedBox(height: 8),
+                _buildTitleField(),
+                const SizedBox(height: 20),
+                _buildLabel('Deskripsi'),
+                const SizedBox(height: 8),
+                _buildDescriptionField(),
+                const SizedBox(height: 24),
+                for (var i = 0; i < _questions.length; i++) ...[
+                  _buildQuestionCard(i),
+                  const SizedBox(height: 20),
+                ],
+                _buildAddQuestionButton(),
+              ],
+            ),
           ),
         ],
       ),

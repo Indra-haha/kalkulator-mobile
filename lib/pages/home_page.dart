@@ -8,11 +8,13 @@ import '../services/quiz_cache_service.dart';
 import '../services/quiz_service.dart';
 import '../services/session_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_header_bar.dart';
 import '../widgets/app_pill_button.dart';
 import '../widgets/quiz_card.dart';
+import '../widgets/section_header.dart';
 import 'MyQuizPage/create_quiz_page.dart';
 import 'MyQuizPage/my_quiz_page.dart';
-import 'MyQuizPage/rooms_page.dart';
+import 'MyQuizPage/detail_room_page.dart';
 import 'login_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -178,8 +180,8 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Menu Utama'),
+      appBar: AppHeaderBar(
+        title: 'Menu Utama',
         actions: [
           IconButton(
             tooltip: 'Refresh',
@@ -203,7 +205,7 @@ class _HomePageState extends State<HomePage> {
       ),
       body: _buildBody(),
       floatingActionButton: AppPillButton(
-        label: 'Buat Quiz Baru',
+        label: 'Create Quiz',
         icon: Icons.add,
         onPressed: _onCreateQuiz,
       ),
@@ -230,7 +232,7 @@ class _HomePageState extends State<HomePage> {
           _buildEmpty()
         else ...[
           const SizedBox(height: 16),
-          _buildSectionHeader(section.status),
+          SectionHeader(title: 'Quiz saya', onSeeAll: _openAll),
           const SizedBox(height: 16),
           QuizCard(
             quiz: section.quiz,
@@ -368,46 +370,6 @@ class _HomePageState extends State<HomePage> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildSectionHeader(String status) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Expanded(
-          child: Text(
-            status,
-            style: AppTextStyles.heading1,
-          ),
-        ),
-        TextButton(
-          onPressed: _openAll,
-          style: TextButton.styleFrom(
-            padding: EdgeInsets.zero,
-            minimumSize: Size.zero,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            foregroundColor: AppColors.primary,
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Lihat Semua',
-                style: GoogleFonts.plusJakartaSans(
-                  color: AppColors.primary,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(width: 4),
-              const Icon(Icons.arrow_forward, size: 18, color: AppColors.primary),
-            ],
-          ),
-        ),
-      ],
     );
   }
 

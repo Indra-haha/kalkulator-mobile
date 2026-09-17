@@ -6,6 +6,7 @@ import '../../services/quiz_cache_service.dart';
 import '../../services/quiz_service.dart';
 import '../../services/session_service.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/app_header_bar.dart';
 import '../login_page.dart';
 
 class RoomsPage extends StatefulWidget {
@@ -94,8 +95,8 @@ class _RoomsPageState extends State<RoomsPage> {
   Widget build(BuildContext context) {
     final title = _quiz?.title;
     return Scaffold(
-      appBar: AppBar(
-        title: Text(title == null || title.isEmpty ? 'Rooms' : title),
+      appBar: AppHeaderBar(
+        title: title == null || title.isEmpty ? 'Rooms' : title,
         actions: [
           IconButton(
             tooltip: 'Refresh',

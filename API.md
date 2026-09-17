@@ -332,6 +332,8 @@ Authorization: Bearer <TOKEN>
       "rooms": [
         {
           "id": "<room_id>",
+          "judul": "Room Soal Flutter",
+          "isi": "Kumpulan soal dasar Flutter & Dart untuk persiapan ujian.",
           "kode": "482913",
           "status": "waiting",
           "created_at": "2026-09-17T10:00:00Z"
@@ -531,6 +533,8 @@ Authorization: Bearer <TOKEN>
       "rooms": [
         {
           "id": "<room_id>",
+          "judul": "Room Latihan Mobile",
+          "isi": "Sesi latihan pemrograman mobile bersama teman sekelas.",
           "kode": "482913",
           "status": "open",
           "created_at": "2026-09-17T10:30:00Z"
@@ -584,7 +588,9 @@ Authorization: Bearer <TOKEN>
 | No | Field | Tipe | Wajib | Deskripsi |
 |---|---|---|---|---|
 | 1 | `quiz_id` | string (ObjectId) | ✅ | ID kuis yang dimainkan di room |
-| 2 | `status` | string | ✗ | `waiting` (default), `open`, `in-Game`, `ended` |
+| 2 | `judul` | string | ✗ | Judul/header room |
+| 3 | `isi` | string | ✗ | Deskripsi/isi room |
+| 4 | `status` | string | ✗ | `waiting` (default), `open`, `in-Game`, `ended` |
 
 **Contoh request:**
 
@@ -595,7 +601,9 @@ Authorization: Bearer <TOKEN>
 Content-Type: application/json
 
 {
-  "quiz_id": "6651a0ab0000000000000000"
+  "quiz_id": "6651a0ab0000000000000000",
+  "judul": "Room Ujian MongoDB",
+  "isi": "Evaluasi konsep dasar NoSQL dan MongoDB."
 }
 ```
 
@@ -624,6 +632,8 @@ Content-Type: application/json
       "total_questions": 10
     },
     "kode": "482913",
+    "judul": "Room Soal Flutter",
+    "isi": "Kumpulan soal dasar Flutter & Dart untuk persiapan ujian.",
     "status": "waiting",
     "created_at": "2026-09-17T10:00:00Z"
   }
@@ -708,6 +718,8 @@ Content-Type: application/json
       "total_questions": 10
     },
     "kode": "482913",
+    "judul": "Room Soal Flutter",
+    "isi": "Kumpulan soal dasar Flutter & Dart untuk persiapan ujian.",
     "status": "in-Game",
     "created_at": "2026-09-17T10:00:00Z"
   }

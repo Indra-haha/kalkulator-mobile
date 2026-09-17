@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
+import '../widgets/app_header_bar.dart';
 
 void main() {
   runApp(
@@ -268,9 +269,7 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Kalkulator'),
-      ),
+      appBar: const AppHeaderBar(title: 'Kalkulator'),
       body: Column(
         children: [
           Expanded(

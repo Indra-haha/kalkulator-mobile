@@ -42,9 +42,9 @@ class StatusFilterChip extends StatelessWidget {
           textAlign: TextAlign.center,
           style: GoogleFonts.plusJakartaSans(
             color: selected ? Colors.white : AppColors.neutralDark,
-            fontSize: 12,
-            fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
-            height: 1.33,
+            fontSize: 14,
+            fontWeight: selected ? FontWeight.w500 : FontWeight.w600,
+            height: 1.6,
           ),
         ),
       ),

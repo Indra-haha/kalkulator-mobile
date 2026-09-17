@@ -1,13 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../models/quiz.dart';
+import '../../models/room.dart';
+import '../../services/api_client.dart';
+import '../../services/quiz_cache_service.dart';
+import '../../services/quiz_service.dart';
+import '../../services/session_service.dart';
 import '../../theme/app_theme.dart';
+import '../../widgets/app_header_bar.dart';
 import '../../widgets/app_pill_button.dart';
 import '../../widgets/quarantine_card.dart';
 import '../../widgets/room_card.dart';
 import '../../widgets/status_filter_chip.dart';
-import 'rooms_page.dart';
+import '../login_page.dart';
+import 'create_room_sheet.dart';
+import 'detail_room_page.dart';
 
 const _statusFilters = ['waiting', 'open', 'in-Game', 'ended'];
 
@@ -22,8 +31,7 @@ class MyQuizPage extends StatefulWidget {
 
 class _MyQuizPageState extends State<MyQuizPage> {
   String _selectedStatus = 'waiting';
-
-  MyQuizzes get _data => widget.data;
+  late MyQuizzes _data = widget.data;
 
   List<({Quizes quiz, RoomSummary room})> _roomsFor(String status) {
     final entries = <({Quizes quiz, RoomSummary room})>[
@@ -49,9 +57,100 @@ class _MyQuizPageState extends State<MyQuizPage> {
     );
   }
 
-  void _onCreateRoom() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Fitur Create Room belum tersedia.')),
+  Future<void> _openCreateRoom() async {
+    final room = await showCreateRoomSheet(context, _data);
+    if (room == null || !mounted) return;
+    await _showKodeDialog(room);
+    await _refresh();
+  }
+
+  Future<void> _showKodeDialog(Room room) async {
+    await showDialog<void>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('Room Dibuat'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Kode Room',
+              style: GoogleFonts.plusJakartaSans(
+                color: AppColors.muted,
+                fontSize: 12,
+                height: 1.33,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              room.kode,
+              style: const TextStyle(
+                fontFamily: 'monospace',
+                fontSize: 36,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 4,
+              ),
+            ),
+            const SizedBox(height: 16),
+            TextButton.icon(
+              onPressed: () {
+                Clipboard.setData(ClipboardData(text: room.kode));
+                ScaffoldMessenger.of(dialogContext).showSnackBar(
+                  const SnackBar(
+                    content: Text('Kode room disalin.'),
+                    duration: Duration(seconds: 1),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.copy, size: 16),
+              label: const Text('Salin'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _refresh() async {
+    final token = await SessionService.instance.getToken();
+    if (token == null) {
+      _goToLogin();
+      return;
+    }
+    try {
+      final data = await QuizService.instance.getMyQuizzes(token);
+      await QuizCacheService.instance.saveMyQuizzes(data);
+      if (!mounted) return;
+      setState(() => _data = data);
+    } on ApiException catch (e) {
+      if (e.statusCode == 401) {
+        await SessionService.instance.clear();
+        _goToLogin();
+        return;
+      }
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(e.message)),
+      );
+    } catch (e) {
+      debugPrint('MyQuiz reload error: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Gagal memuat ulang data.')),
+      );
+    }
+  }
+
+  void _goToLogin() {
+    if (!mounted) return;
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const LoginPage()),
+      (route) => false,
     );
   }
 
@@ -59,13 +158,12 @@ class _MyQuizPageState extends State<MyQuizPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9FF),
-      appBar: AppBar(
-        title: const Text('Quiz Saya'),
-      ),
+      appBar: const AppHeaderBar(title: 'Quiz Saya'),
       body: _buildBody(),
       floatingActionButton: AppPillButton(
         label: 'Create Room',
-        onPressed: _onCreateRoom,
+        icon: Icons.add,
+        onPressed: _openCreateRoom,
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );

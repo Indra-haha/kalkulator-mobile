@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_header_bar.dart';
 import '../widgets/app_tab_bar.dart';
 import 'hitungkonversi.dart';
 
@@ -11,8 +12,8 @@ class KonversiPage extends StatelessWidget {
     return DefaultTabController(
       length: 4,
       child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Konversi Kalender'),
+        appBar: AppHeaderBar(
+          title: 'Konversi Kalender',
           bottom: const AppTabBar(
             tabs: ['Hijriah', 'Umur', 'Weton', 'Saka Bali'],
           ),

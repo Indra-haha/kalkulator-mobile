@@ -13,6 +13,8 @@ class RoomService {
   Future<Room> createRoom({
     required String token,
     required String quizId,
+    String? judul,
+    String? isi,
     String? status,
   }) async {
     final response = await http
@@ -21,6 +23,8 @@ class RoomService {
           headers: ApiClient.headers(token: token, body: true),
           body: jsonEncode({
             'quiz_id': quizId,
+            'judul': ?judul,
+            'isi': ?isi,
             'status': ?status,
           }),
         )
