@@ -113,12 +113,16 @@ class RoomSummary {
   final String kode;
   final String status;
   final String createdAt;
+  final String judul;
+  final String isi;
 
   const RoomSummary({
     required this.id,
     required this.kode,
     required this.status,
     required this.createdAt,
+    this.judul = '',
+    this.isi = '',
   });
 
   factory RoomSummary.fromJson(Map<String, dynamic> json) {
@@ -127,6 +131,8 @@ class RoomSummary {
       kode: json['kode'] as String? ?? '',
       status: json['status'] as String? ?? '',
       createdAt: json['created_at'] as String? ?? '',
+      judul: json['judul'] as String? ?? '',
+      isi: json['isi'] as String? ?? '',
     );
   }
 
@@ -136,6 +142,8 @@ class RoomSummary {
       'kode': kode,
       'status': status,
       'created_at': createdAt,
+      'judul': judul,
+      'isi': isi,
     };
   }
 }

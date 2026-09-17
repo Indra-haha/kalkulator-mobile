@@ -11,7 +11,7 @@ import '../../widgets/quiz_card.dart';
 import '../../widgets/section_header.dart';
 import '../../widgets/status_filter_chip.dart';
 import '../login_page.dart';
-import '../MyQuizPage/detail_room_page.dart';
+import 'detail_quiz_room_page.dart';
 
 class QuizPage extends StatefulWidget {
   final Map<String, dynamic>? user;
@@ -129,7 +129,9 @@ class _QuizPageState extends State<QuizPage> {
 
   void _openRooms(Quizes quiz) {
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => RoomsPage(quizId: quiz.id)),
+      MaterialPageRoute(
+        builder: (_) => DetailQuizRoomPage(quiz: quiz),
+      ),
     );
   }
 

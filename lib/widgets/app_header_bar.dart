@@ -29,15 +29,22 @@ class AppHeaderBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final actionList = actions;
+    final hasLeading = leading != null;
+
+    // Saat ada leading (mis. icon arrow), padding kiri dihilangkan agar arrow
+    // menempel di tepi layar dan title tidak terdorong terlalu jauh.
+    final padding = hasLeading
+        ? const EdgeInsets.only(right: 20)
+        : _contentPadding;
 
     return AppBar(
       automaticallyImplyLeading: false,
       titleSpacing: 0,
       title: Padding(
-        padding: _contentPadding,
+        padding: padding,
         child: Row(
           children: [
-            if (leading != null) ...[
+            if (hasLeading) ...[
               leading!,
               const SizedBox(width: _contentGap),
             ],

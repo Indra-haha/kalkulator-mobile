@@ -67,46 +67,43 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
       }
 
       if (['+', '-', '×', '÷'].contains(value)) {
-        String text = _displayController.text;
-        _operation = '';
-
-        if (text.contains(',')) {
-          _operation = "deret";
-        }
+        final String text = _displayController.text;
+        _operation = text.contains(',') ? 'deret' : '';
 
         if (text.isEmpty) {
+          // Di awal ekspresi, '-' langsung jadi tanda negatif; '+' tidak bisa.
           if (value == '-') {
             _displayController.text = '-';
           }
           return;
         }
 
+        // Mode deret: minus boleh menempel langsung di belakang koma -> "5,-"
         if ((text.endsWith(',') || text.endsWith(', ')) && value == '-') {
-          if (text.endsWith(', ')) {
-            // Hapus spasi setelah koma, lalu tempel minus (jadi "5,-")
-            _displayController.text = text.substring(0, text.length - 1) + '-';
-          } else {
-            // Langsung tempel minus di belakang koma (jadi "5,-")
-            _displayController.text += '-';
-          }
+          _displayController.text = text.endsWith(' ')
+              ? '${text.substring(0, text.length - 1)}-'
+              : '$text-';
           return;
         }
 
-        if (text.endsWith(' + ') ||
-            text.endsWith(' - ') ||
-            text.endsWith(' × ') ||
-            text.endsWith(' ÷ ')) {
-          if (value == '-') {
-            _displayController.text += '-';
-          } else {
-            _displayController.text =
-                text.substring(0, text.length - 3) + ' $value ';
-          }
-        } else if (text.endsWith('-') && !text.endsWith(' - ')) {
+        final String core = text.trimRight();
+        final bool prevOperator = core.isNotEmpty &&
+            ['+', '-', '×', '÷'].contains(core[core.length - 1]);
+
+        if (value == '-') {
+          // '-' bisa jadi TANDA bilangan berikutnya (sesudah operator apa pun),
+          // sesuai logika matematika. '+' tidak pernah jadi unary.
+          _displayController.text = prevOperator ? '$core -' : '$core - ';
           return;
-        } else {
-          _displayController.text += ' $value ';
         }
+
+        if (prevOperator) {
+          _displayController.text =
+              '${core.substring(0, core.length - 1).trimRight()} $value ';
+          return;
+        }
+
+        _displayController.text += ' $value ';
         return;
       }
 
@@ -173,72 +170,23 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
       return;
     }
 
-    try {
-      // 1. TOKENISASI MENGGUNAKAN REGEX
-      // Pola ini mendeteksi angka (bisa desimal dengan koma/titik dan bisa negatif) 
-      // ATAU operator (+, -, ×, ÷) secara terpisah.
-      final RegExp regExp = RegExp(r'(-?\d+[\d,.]*|\+|\-|\×|\÷)');
-      final matches = regExp.allMatches(raw);
-      
-      List<String> tokens = matches.map((m) => m.group(0)!).toList();
-
-      if (tokens.isEmpty) return;
-
-      // Jika token terakhir adalah operator, buang sementara agar tidak error saat dihitung
-      if (['+', '-', '×', '÷'].contains(tokens.last)) {
-        tokens.removeLast();
-      }
-
-      if (tokens.isEmpty) return;
-
-      double parseVal(String s) {
-        return double.parse(s.replaceAll(',', '.'));
-      }
-
-      for (int i = 0; i < tokens.length; i++) {
-        if (tokens[i] == '×' || tokens[i] == '÷') {
-          if (i - 1 < 0 || i + 1 >= tokens.length) break;
-
-          double a = parseVal(tokens[i - 1]);
-          double b = parseVal(tokens[i + 1]);
-
-          if (tokens[i] == '÷' && b == 0) {
-            setState(() => _result = 'Tidak dapat membagi dengan nol!');
-            return;
-          }
-
-          double res = tokens[i] == '×' ? a * b : a / b;
-
-          tokens.replaceRange(i - 1, i + 2, [res.toString()]);
-          i = i - 1; 
-        }
-      }
-
-      for (int i = 0; i < tokens.length; i++) {
-        if (tokens[i] == '+' || tokens[i] == '-') {
-          if (i - 1 < 0 || i + 1 >= tokens.length) break;
-
-          double a = parseVal(tokens[i - 1]);
-          double b = parseVal(tokens[i + 1]);
-
-          double res = tokens[i] == '+' ? a + b : a - b;
-
-          tokens.replaceRange(i - 1, i + 2, [res.toString()]);
-          i = i - 1;
-        }
-      }
-
-      if (tokens.length == 1) {
-        double hasil = parseVal(tokens[0]);
-        setState(() {
-          _result = ' ${_numFormat(hasil)}';
-        });
-      }
-    } catch (e) {
-      setState(() {
-        _result = '';
-      });
+    // Mode Kalkulator: evaluasi multi-operator + precedence + unary minus
+    // ditangani oleh KalkulatorEngine (OOP).
+    final Expr? parsed = KalkulatorEngine.parse(raw);
+    if (parsed == null) {
+      setState(() => _result = '');
+      return;
     }
+
+    final double? hasil = KalkulatorEngine.hitung(parsed);
+    if (hasil == null) {
+      setState(() => _result = 'Tidak dapat membagi dengan nol!');
+      return;
+    }
+
+    setState(() {
+      _result = ' ${_numFormat(hasil)}';
+    });
   }
 
   String _numFormat(double value) {
@@ -370,5 +318,162 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
         ],
       ),
     );
+  }
+}
+
+// ====================================================================
+// Engine kalkulator OOP.
+// Ekspresi dibangun sebagai pohon objek (Expr) sehingga bisa dikomposisi
+// bebas/bersarang dan dipakai ulang oleh class lain:
+//   KalkulatorEngine.tambah(KalkulatorEngine.tambah(a, b), c) == a + b + c
+//   KalkulatorEngine.parse('2 + 3 × 4')
+//     -> BinerExpr(2, '+', BinerExpr(3, '×', 4))   // hasil 14
+// Precedence: × ÷ dikerjakan lebih dulu, lalu + -, urutan kiri-dulu.
+// Unary minus: '-' menjadi tanda bilangan berikutnya (awal ekspresi atau
+// sesudah operator apa pun); '+' tidak pernah menjadi unary.
+// ====================================================================
+sealed class Expr {
+  const Expr();
+}
+
+class AngkaExpr extends Expr {
+  const AngkaExpr(this.nilai);
+
+  final double nilai;
+}
+
+class NegExpr extends Expr {
+  const NegExpr(this.target);
+
+  final Expr target;
+}
+
+class BinerExpr extends Expr {
+  const BinerExpr(this.kiri, this.opr, this.kanan);
+
+  final Expr kiri;
+  final String opr;
+  final Expr kanan;
+}
+
+class KalkulatorEngine {
+  KalkulatorEngine._();
+
+  // --- Builder: komposisi operasi (bersarang, tanpa batas kedalaman) ---
+  static Expr angka(num nilai) => AngkaExpr(nilai.toDouble());
+
+  static Expr tambah(Expr a, Expr b) => BinerExpr(a, '+', b);
+
+  static Expr kurang(Expr a, Expr b) => BinerExpr(a, '-', b);
+
+  static Expr kali(Expr a, Expr b) => BinerExpr(a, '×', b);
+
+  static Expr bagi(Expr a, Expr b) => BinerExpr(a, '÷', b);
+
+  static Expr negasi(Expr target) => NegExpr(target);
+
+  // --- Evaluasi rekursif. Bagi nol (atau error lain) => null. ---
+  static double? hitung(Expr expr) {
+    switch (expr) {
+      case AngkaExpr(:final nilai):
+        return nilai;
+      case NegExpr(:final target):
+        final nilai = hitung(target);
+        return nilai == null ? null : -nilai;
+      case BinerExpr(:final kiri, :final opr, :final kanan):
+        final a = hitung(kiri);
+        final b = hitung(kanan);
+        if (a == null || b == null) return null;
+        switch (opr) {
+          case '+':
+            return a + b;
+          case '-':
+            return a - b;
+          case '×':
+            return a * b;
+          case '÷':
+            if (b == 0) return null;
+            return a / b;
+        }
+        return null;
+    }
+  }
+
+  // --- Parse dari string (dipakai KalkulatorPage untuk preview live). ---
+  static Expr? parse(String raw) {
+    List<String> tokens = _tokenize(raw);
+    if (tokens.isEmpty) return null;
+
+    Expr? expr = _tryParse(tokens);
+    if (expr == null && ['+', '-', '×', '÷'].contains(tokens.last)) {
+      // Input menggantung pada operator (mis. "5 +") -> potong lalu coba lagi.
+      tokens = tokens.sublist(0, tokens.length - 1);
+      expr = _tryParse(tokens);
+    }
+    return expr;
+  }
+
+  static List<String> _tokenize(String raw) {
+    return RegExp(r'(\d+[\d,.]*|[+\-×÷])')
+        .allMatches(raw)
+        .map((m) => m.group(1)!)
+        .toList();
+  }
+
+  // Recursive descent: parseTambahKurang -> parseKaliBagi -> parseUnary.
+  static Expr? _tryParse(List<String> tokens) {
+    int pos = 0;
+
+    Expr? parseAngka() {
+      if (pos >= tokens.length) return null;
+      final double? nilai = double.tryParse(tokens[pos].replaceAll(',', '.'));
+      if (nilai == null) return null;
+      pos++;
+      return AngkaExpr(nilai);
+    }
+
+    Expr? parseUnary() {
+      if (pos >= tokens.length) return null;
+      final String token = tokens[pos];
+      if (token == '-') {
+        pos++;
+        final Expr? operand = parseUnary();
+        return operand == null ? null : NegExpr(operand);
+      }
+      if (token == '+') return null; // unary plus tidak diizinkan
+      return parseAngka();
+    }
+
+    Expr? parseKaliBagi() {
+      final Expr? first = parseUnary();
+      if (first == null) return null;
+      Expr left = first;
+      while (pos < tokens.length &&
+          (tokens[pos] == '×' || tokens[pos] == '÷')) {
+        final String opr = tokens[pos++];
+        final Expr? right = parseUnary();
+        if (right == null) return null;
+        left = BinerExpr(left, opr, right);
+      }
+      return left;
+    }
+
+    Expr? parseTambahKurang() {
+      final Expr? first = parseKaliBagi();
+      if (first == null) return null;
+      Expr left = first;
+      while (pos < tokens.length &&
+          (tokens[pos] == '+' || tokens[pos] == '-')) {
+        final String opr = tokens[pos++];
+        final Expr? right = parseKaliBagi();
+        if (right == null) return null;
+        left = BinerExpr(left, opr, right);
+      }
+      return left;
+    }
+
+    final Expr? expr = parseTambahKurang();
+    if (expr == null || pos != tokens.length) return null;
+    return expr;
   }
 }

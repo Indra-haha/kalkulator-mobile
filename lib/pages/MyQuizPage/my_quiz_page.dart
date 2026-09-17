@@ -51,10 +51,34 @@ class _MyQuizPageState extends State<MyQuizPage> {
     return DateTime.tryParse(raw) ?? DateTime.fromMillisecondsSinceEpoch(0);
   }
 
-  void _openRooms(Quizes quiz) {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => RoomsPage(quizId: quiz.id)),
+  Future<void> _openRooms(Quizes quiz) async {
+    final result = await Navigator.of(context).push<PublishResult>(
+      MaterialPageRoute<PublishResult>(
+        builder: (_) => RoomsPage(quizId: quiz.id),
+      ),
     );
+    if (mounted && result != null) {
+      setState(() => _selectedStatus = result.previous);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Status room menjadi "${result.next}".')),
+      );
+      await _refresh();
+    }
+  }
+
+  Future<void> _openRoomDetail(Quizes quiz, RoomSummary room) async {
+    final result = await Navigator.of(context).push<PublishResult>(
+      MaterialPageRoute<PublishResult>(
+        builder: (_) => RoomDetailPage(quizId: quiz.id, room: room),
+      ),
+    );
+    if (mounted && result != null) {
+      setState(() => _selectedStatus = result.previous);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Status room menjadi "${result.next}".')),
+      );
+    }
+    if (mounted) await _refresh();
   }
 
   Future<void> _openCreateRoom() async {
@@ -240,7 +264,7 @@ class _MyQuizPageState extends State<MyQuizPage> {
             child: RoomCard(
               quiz: entry.quiz,
               room: entry.room,
-              onTap: () => _openRooms(entry.quiz),
+              onTap: () => _openRoomDetail(entry.quiz, entry.room),
             ),
           ),
       ],
