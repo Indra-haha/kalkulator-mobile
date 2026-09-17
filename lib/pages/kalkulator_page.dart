@@ -38,7 +38,7 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
     super.initState();
     _operation = "";
     _displayController.addListener(() {
-      _hitung();
+      _hitung(); // Live evaluasi terpanggil otomatis setiap ada perubahan teks
     });
   }
 
@@ -71,14 +71,12 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
         _operation = text.contains(',') ? 'deret' : '';
 
         if (text.isEmpty) {
-          // Di awal ekspresi, '-' langsung jadi tanda negatif; '+' tidak bisa.
           if (value == '-') {
             _displayController.text = '-';
           }
           return;
         }
 
-        // Mode deret: minus boleh menempel langsung di belakang koma -> "5,-"
         if ((text.endsWith(',') || text.endsWith(', ')) && value == '-') {
           _displayController.text = text.endsWith(' ')
               ? '${text.substring(0, text.length - 1)}-'
@@ -91,8 +89,6 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
             ['+', '-', '×', '÷'].contains(core[core.length - 1]);
 
         if (value == '-') {
-          // '-' bisa jadi TANDA bilangan berikutnya (sesudah operator apa pun),
-          // sesuai logika matematika. '+' tidak pernah jadi unary.
           _displayController.text = prevOperator ? '$core -' : '$core - ';
           return;
         }
@@ -113,7 +109,6 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
         return;
       }
 
-      // Jika pindah mode ke Deret
       if (value == 'Sn') {
         _operation = 'deret';
         _hitung();
@@ -170,8 +165,7 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
       return;
     }
 
-    // Mode Kalkulator: evaluasi multi-operator + precedence + unary minus
-    // ditangani oleh KalkulatorEngine (OOP).
+    // Live Evaluasi menggunakan KalkulatorEngine.parse
     final Expr? parsed = KalkulatorEngine.parse(raw);
     if (parsed == null) {
       setState(() => _result = '');
@@ -190,14 +184,6 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
   }
 
   String _numFormat(double value) {
-    // double absVal = value.abs();
-
-    // Jika mencapai 1 miliar atau lebih, gunakan format eksponensial (e)
-    // if (absVal >= 1000000000) {
-    //   return value.toStringAsExponential(0);
-    // }
-
-    // Format normal untuk angka biasa (menghilangkan .0 jika bilangan bulat)
     return value == value.roundToDouble()
         ? value.toStringAsFixed(0)
         : value.toString();
@@ -322,15 +308,7 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
 }
 
 // ====================================================================
-// Engine kalkulator OOP.
-// Ekspresi dibangun sebagai pohon objek (Expr) sehingga bisa dikomposisi
-// bebas/bersarang dan dipakai ulang oleh class lain:
-//   KalkulatorEngine.tambah(KalkulatorEngine.tambah(a, b), c) == a + b + c
-//   KalkulatorEngine.parse('2 + 3 × 4')
-//     -> BinerExpr(2, '+', BinerExpr(3, '×', 4))   // hasil 14
-// Precedence: × ÷ dikerjakan lebih dulu, lalu + -, urutan kiri-dulu.
-// Unary minus: '-' menjadi tanda bilangan berikutnya (awal ekspresi atau
-// sesudah operator apa pun); '+' tidak pernah menjadi unary.
+// Engine Kalkulator OOP untuk Live Evaluasi
 // ====================================================================
 sealed class Expr {
   const Expr();
@@ -338,19 +316,16 @@ sealed class Expr {
 
 class AngkaExpr extends Expr {
   const AngkaExpr(this.nilai);
-
   final double nilai;
 }
 
 class NegExpr extends Expr {
   const NegExpr(this.target);
-
   final Expr target;
 }
 
 class BinerExpr extends Expr {
   const BinerExpr(this.kiri, this.opr, this.kanan);
-
   final Expr kiri;
   final String opr;
   final Expr kanan;
@@ -359,20 +334,13 @@ class BinerExpr extends Expr {
 class KalkulatorEngine {
   KalkulatorEngine._();
 
-  // --- Builder: komposisi operasi (bersarang, tanpa batas kedalaman) ---
   static Expr angka(num nilai) => AngkaExpr(nilai.toDouble());
-
   static Expr tambah(Expr a, Expr b) => BinerExpr(a, '+', b);
-
   static Expr kurang(Expr a, Expr b) => BinerExpr(a, '-', b);
-
   static Expr kali(Expr a, Expr b) => BinerExpr(a, '×', b);
-
   static Expr bagi(Expr a, Expr b) => BinerExpr(a, '÷', b);
-
   static Expr negasi(Expr target) => NegExpr(target);
 
-  // --- Evaluasi rekursif. Bagi nol (atau error lain) => null. ---
   static double? hitung(Expr expr) {
     switch (expr) {
       case AngkaExpr(:final nilai):
@@ -385,12 +353,9 @@ class KalkulatorEngine {
         final b = hitung(kanan);
         if (a == null || b == null) return null;
         switch (opr) {
-          case '+':
-            return a + b;
-          case '-':
-            return a - b;
-          case '×':
-            return a * b;
+          case '+': return a + b;
+          case '-': return a - b;
+          case '×': return a * b;
           case '÷':
             if (b == 0) return null;
             return a / b;
@@ -399,14 +364,12 @@ class KalkulatorEngine {
     }
   }
 
-  // --- Parse dari string (dipakai KalkulatorPage untuk preview live). ---
   static Expr? parse(String raw) {
     List<String> tokens = _tokenize(raw);
     if (tokens.isEmpty) return null;
 
     Expr? expr = _tryParse(tokens);
     if (expr == null && ['+', '-', '×', '÷'].contains(tokens.last)) {
-      // Input menggantung pada operator (mis. "5 +") -> potong lalu coba lagi.
       tokens = tokens.sublist(0, tokens.length - 1);
       expr = _tryParse(tokens);
     }
@@ -420,7 +383,6 @@ class KalkulatorEngine {
         .toList();
   }
 
-  // Recursive descent: parseTambahKurang -> parseKaliBagi -> parseUnary.
   static Expr? _tryParse(List<String> tokens) {
     int pos = 0;
 
@@ -440,7 +402,7 @@ class KalkulatorEngine {
         final Expr? operand = parseUnary();
         return operand == null ? null : NegExpr(operand);
       }
-      if (token == '+') return null; // unary plus tidak diizinkan
+      if (token == '+') return null;
       return parseAngka();
     }
 

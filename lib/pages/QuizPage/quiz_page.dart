@@ -121,18 +121,14 @@ class _QuizPageState extends State<QuizPage> {
 
     return quizzes.where((quiz) {
       if (quiz.title.toLowerCase().contains(query)) return true;
-      return quiz.rooms.any(
-        (room) => room.kode.toLowerCase().contains(query),
-      );
+      return quiz.rooms.any((room) => room.kode.toLowerCase().contains(query));
     }).toList();
   }
 
   void _openRooms(Quizes quiz) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => DetailQuizRoomPage(quiz: quiz),
-      ),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => DetailQuizRoomPage(quiz: quiz)));
   }
 
   String _statusLabel(String status) {
@@ -175,7 +171,7 @@ class _QuizPageState extends State<QuizPage> {
                   ],
                 ],
               ),
-            ),
+            ), 
             const SizedBox(height: 8),
             Expanded(child: _buildResults()),
           ],
@@ -216,11 +212,7 @@ class _QuizPageState extends State<QuizPage> {
         suffixIcon: IconButton(
           tooltip: 'Refresh',
           onPressed: _loading ? null : _loadData,
-          icon: const Icon(
-            Icons.refresh,
-            size: 16,
-            color: AppColors.neutral,
-          ),
+          icon: const Icon(Icons.refresh, size: 16, color: AppColors.neutral),
         ),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -281,9 +273,7 @@ class _QuizPageState extends State<QuizPage> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              query.isEmpty
-                  ? Icons.quiz_outlined
-                  : Icons.search_off,
+              query.isEmpty ? Icons.quiz_outlined : Icons.search_off,
               size: 48,
               color: Colors.grey,
             ),

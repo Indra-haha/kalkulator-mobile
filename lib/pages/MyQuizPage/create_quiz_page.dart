@@ -192,7 +192,7 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppHeaderBar(
-        title: 'QUIZRUSH',
+        title: 'Create Quiz',
         leading: IconButton(
           tooltip: 'Kembali',
           onPressed: _saving ? null : () => Navigator.of(context).pop(false),

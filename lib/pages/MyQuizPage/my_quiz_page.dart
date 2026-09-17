@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:numerus/pages/MyQuizPage/quiz_test_page.dart';
 
 import '../../models/quiz.dart';
 import '../../models/room.dart';
@@ -63,6 +64,20 @@ class _MyQuizPageState extends State<MyQuizPage> {
         SnackBar(content: Text('Status room menjadi "${result.next}".')),
       );
       await _refresh();
+    }
+  }
+
+  Future<void> _testRoom(Quizes quiz, RoomSummary room) async {
+    final result = await Navigator.of(context).push<PublishResult>(
+      MaterialPageRoute<PublishResult>(
+        builder: (_) => QuizTestPage(quiz: quiz),
+      ),
+    );
+    if (mounted && result != null) {
+      setState(() => _selectedStatus = result.previous);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Status room menjadi "${result.next}".')),
+      );
     }
   }
 
@@ -265,6 +280,7 @@ class _MyQuizPageState extends State<MyQuizPage> {
               quiz: entry.quiz,
               room: entry.room,
               onTap: () => _openRoomDetail(entry.quiz, entry.room),
+              onTestPressed: () => _testRoom(entry.quiz, entry.room),
             ),
           ),
       ],

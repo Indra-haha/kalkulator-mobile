@@ -69,7 +69,7 @@ class AppPillButton extends StatelessWidget {
                     style: GoogleFonts.plusJakartaSans(
                       color: AppColors.background,
                       fontSize: 16,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w400,
                       height: 1.5,
                     ),
                   ),

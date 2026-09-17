@@ -46,10 +46,10 @@ class DetailQuizRoomPage extends StatelessWidget {
         else
           for (var i = 0; i < quiz.rooms.length; i++) ...[
             if (i > 0) const SizedBox(height: 16),
+            if (quiz.rooms[i].status != 'waiting')
             _roomCard(context, quiz, quiz.rooms[i], i),
           ],
         const SizedBox(height: 24),
-        _createRoomCta(context),
       ],
     );
   }
@@ -385,30 +385,31 @@ class DetailQuizRoomPage extends StatelessWidget {
                   ],
                 ),
                 const Spacer(),
-                SizedBox(
-                  height: 44,
-                  child: FilledButton(
-                    onPressed: () => _showSnack(
-                      context,
-                      'Join Room ${room.kode} — fitur join menyusul.',
-                    ),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AppColors.primary,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+                if (room.status == 'open')
+                  SizedBox(
+                    height: 44,
+                    child: FilledButton(
+                      onPressed: () => _showSnack(
+                        context,
+                        'Join Room ${room.kode} — fitur join menyusul.',
                       ),
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                    ),
-                    child: Text(
-                      'Masuk',
-                      style: GoogleFonts.plusJakartaSans(
-                        fontSize: 14,
-                        fontWeight: FontWeight.w700,
-                        height: 1.43,
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
+                      ),
+                      child: Text(
+                        'Masuk',
+                        style: GoogleFonts.plusJakartaSans(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w700,
+                          height: 1.43,
+                        ),
                       ),
                     ),
                   ),
-                ),
               ],
             ),
           ),
@@ -436,90 +437,13 @@ class DetailQuizRoomPage extends StatelessWidget {
     );
   }
 
-  Widget _createRoomCta(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-          colors: [Color(0xFFE1E0FF), Color(0xFFE9DDFF)],
-        ),
-        borderRadius: BorderRadius.circular(32),
-        boxShadow: const [
-          BoxShadow(
-            color: Color(0x0C000000),
-            blurRadius: 2,
-            offset: Offset(0, 1),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Ingin Bikin Sesi Sendiri?',
-                  style: GoogleFonts.plusJakartaSans(
-                    color: const Color(0xFF07006C),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    height: 1.43,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  'Buat room pribadi & undang temanmu',
-                  style: GoogleFonts.plusJakartaSans(
-                    color: const Color(0xFF2F2EBE),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    height: 1.33,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 12),
-          SizedBox(
-            height: 40,
-            child: FilledButton(
-              onPressed: () => _showSnack(
-                context,
-                'Buka tab Quiz Saya untuk membuat room.',
-              ),
-              style: FilledButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-              ),
-              child: Text(
-                'Buat Room',
-                style: GoogleFonts.plusJakartaSans(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  height: 1.43,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   String _quizStatus(Quizes quiz) {
     if (quiz.status.isNotEmpty) return quiz.status;
-    const priority = ['in-Game', 'open', 'waiting', 'ended'];
+    const priority = ['in-Game', 'open', 'ended'];
     for (final status in priority) {
-      if (quiz.rooms.any((room) => room.status == status)) return status;
+      if (quiz.rooms.any((room) => room.status == status && room.status != 'waiting' ) ) return status;
     }
-    return 'waiting';
+    return '';
   }
 
   ({String label, Color color, Color bg}) _statusInfo(String status) {
@@ -545,7 +469,7 @@ class DetailQuizRoomPage extends StatelessWidget {
       case 'waiting':
       default:
         return (
-          label: 'Live • Menunggu Pemain',
+          label: status,
           color: AppColors.brandDeep,
           bg: const Color(0xFFE1E0FF),
         );
