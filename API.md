@@ -24,7 +24,7 @@ Semua endpoint wajib menyertakan header `Authorization` **kecuali** `POST /api/r
 | GET | `/api/session` | ✓ | Mengecek sesi login masih aktif |
 | GET | `/api/my-quizzes` | ✓ | List kuis milik user (dikelompokkan by status room) |
 | POST | `/api/create/quiz` | ✓ | Membuat kuis baru |
-| GET | `/api/quizzes` | ✓ | List semua kuis (grup: waiting, open, in-Game, ended) |
+| GET | `/api/quizzes` | ✓ | List semua kuis (grup: waiting, open, in-Game, ended, quarantine) |
 | POST | `/api/create/room` | ✓ | Membuat room baru |
 | PUT | `/api/room/{id}/status` | ✓ | Mengubah status room |
 | POST | `/api/room/{kode}/result` | ✓ | Membuat result untuk room |
@@ -289,8 +289,8 @@ Authorization: Bearer <TOKEN>
 
 Tidak ada request parameter. Response hanya kuis milik user yang login (identitas diambil otomatis dari token, sehingga tidak bisa dilihat oleh user lain).
 
-Response dikelompokkan ke **4 grup** berdasarkan status room paling terakhir dibuat:
-`waiting`, `open`, `in-Game`, dan `ended`. Kuis yang belum punya room sama sekali juga masuk grup `waiting`.
+Response dikelompokkan ke **5 grup** berdasarkan status room paling terakhir dibuat:
+`waiting`, `open`, `in-Game`, `ended`, dan `quarantine` (kuis yang belum punya room sama sekali).
 Setiap kuis muncul hanya di **satu** grup; room di dalam kuis diurutkan ascending (kecil → besar) by `created_at`, dan urutan kuis di tiap grup berdasarkan `created_at` kuis (terbaru di atas).
 
 **Contoh request:**
@@ -337,7 +337,12 @@ Authorization: Bearer <TOKEN>
           "created_at": "2026-09-17T10:00:00Z"
         }
       ]
-    },
+    }
+  ],
+  "open": [],
+  "in-Game": [],
+  "ended": [],
+  "quarantine": [
     {
       "id": "<id>",
       "user_id": "<user_id>",
@@ -352,17 +357,13 @@ Authorization: Bearer <TOKEN>
         }
       ],
       "created_at": "2026-09-16T08:00:00Z",
-      "status": "waiting",
       "rooms": []
     }
-  ],
-  "open": [],
-  "in-Game": [],
-  "ended": []
+  ]
 }
 ```
 
-> `status` pada kuis = status room yang paling terakhir dibuat; untuk kuis yang belum punya room sama sekali, `status` di-set ke `waiting` (masuk grup `waiting`). `correct_idx` tidak dikembalikan pada response untuk menjaga jawaban benar tetap rahasia.
+> `status` pada kuis = status room yang paling terakhir dibuat; field ini dihilangkan (`omitempty`) jika kuis belum punya room (masuk grup `quarantine`). `correct_idx` tidak dikembalikan pada response untuk menjaga jawaban benar tetap rahasia.
 
 **Contoh response — `401 Unauthorized`**
 
@@ -487,8 +488,8 @@ Content-Type: application/json
 
 Tidak ada request parameter.
 
-Response dikelompokkan ke **4 grup** berdasarkan status room paling terakhir dibuat:
-`waiting`, `open`, `in-Game`, dan `ended`. Kuis yang belum punya room sama sekali juga masuk grup `waiting`.
+Response dikelompokkan ke **5 grup** berdasarkan status room paling terakhir dibuat:
+`waiting`, `open`, `in-Game`, `ended`, dan `quarantine` (kuis yang belum punya room sama sekali).
 Setiap kuis muncul hanya di satu grup; room di dalam kuis diurutkan ascending by `created_at`, dan urutan
 kuis di tiap grup berdasarkan `created_at` kuis (terbaru di atas).
 
@@ -511,24 +512,7 @@ Authorization: Bearer <TOKEN>
 
 ```json
 {
-  "waiting": [
-    {
-      "id": "<id>",
-      "user_id": "<user_id>",
-      "title": "Kuis Basis Data MongoDB",
-      "description": "Konsep dasar MongoDB",
-      "questions": [
-        {
-          "question": "MongoDB termasuk database jenis apa?",
-          "options": ["SQL", "Redis", "NoSQL", "GraphQL"],
-          "duration": 2,
-          "skor": 30
-        }
-      ],
-      "created_at": "2026-09-16T08:00:00Z",
-      "rooms": []
-    }
-  ],
+  "waiting": [],
   "open": [
     {
       "id": "<id>",
@@ -555,11 +539,29 @@ Authorization: Bearer <TOKEN>
     }
   ],
   "in-Game": [],
-  "ended": []
+  "ended": [],
+  "quarantine": [
+    {
+      "id": "<id>",
+      "user_id": "<user_id>",
+      "title": "Kuis Basis Data MongoDB",
+      "description": "Konsep dasar MongoDB",
+      "questions": [
+        {
+          "question": "MongoDB termasuk database jenis apa?",
+          "options": ["SQL", "Redis", "NoSQL", "GraphQL"],
+          "duration": 2,
+          "skor": 30
+        }
+      ],
+      "created_at": "2026-09-16T08:00:00Z",
+      "rooms": []
+    }
+  ]
 }
 ```
 
-> `correct_idx` tidak dikembalikan pada response untuk menjaga jawaban benar tetap rahasia. `status` di level kuis tidak dikembalikan pada endpoint ini (status room terbaru sudah direpresentasikan oleh nama grup).
+> `correct_idx` tidak dikembalikan pada response untuk menjaga jawaban benar tetap rahasia. `status` di level kuis tidak dikembalikan pada endpoint ini (status room terbaru sudah direpresentasikan oleh nama grup; kuis tanpa room masuk grup `quarantine`).
 
 **Contoh response — `401 Unauthorized`**
 

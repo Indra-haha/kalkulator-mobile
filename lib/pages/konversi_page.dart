@@ -13,8 +13,6 @@ class KonversiPage extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Konversi Kalender'),
-          backgroundColor: AppColors.highlight,
-          foregroundColor: Colors.white,
           bottom: const AppTabBar(
             tabs: ['Hijriah', 'Umur', 'Weton', 'Saka Bali'],
           ),

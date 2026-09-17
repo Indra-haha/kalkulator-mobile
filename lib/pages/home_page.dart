@@ -8,6 +8,7 @@ import '../services/quiz_cache_service.dart';
 import '../services/quiz_service.dart';
 import '../services/session_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_pill_button.dart';
 import '../widgets/quiz_card.dart';
 import 'MyQuizPage/create_quiz_page.dart';
 import 'MyQuizPage/my_quiz_page.dart';
@@ -133,7 +134,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   ({String status, Quizes quiz})? _currentSection() {
-    const priority = ['waiting', 'open', 'in-Game', 'ended'];
+    const priority = ['waiting', 'open', 'in-Game', 'ended', 'quarantine'];
     final groups = {
       for (final group in _myQuizzes.groups) group.status: group.quizzes,
     };
@@ -179,8 +180,6 @@ class _HomePageState extends State<HomePage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Menu Utama'),
-        backgroundColor: AppColors.highlight,
-        foregroundColor: Colors.white,
         actions: [
           IconButton(
             tooltip: 'Refresh',
@@ -196,7 +195,6 @@ class _HomePageState extends State<HomePage> {
                     height: 20,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: Colors.white,
                     ),
                   )
                 : const Icon(Icons.logout),
@@ -204,20 +202,10 @@ class _HomePageState extends State<HomePage> {
         ],
       ),
       body: _buildBody(),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton: AppPillButton(
+        label: 'Buat Quiz Baru',
+        icon: Icons.add,
         onPressed: _onCreateQuiz,
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-        shape: const StadiumBorder(),
-        icon: const Icon(Icons.add),
-        label: Text(
-          'Buat Quiz Baru',
-          style: GoogleFonts.montserrat(
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-            height: 1.5,
-          ),
-        ),
       ),
     );
   }
@@ -391,12 +379,7 @@ class _HomePageState extends State<HomePage> {
         Expanded(
           child: Text(
             status,
-            style: GoogleFonts.montserrat(
-              color: AppColors.ink,
-              fontSize: 28,
-              fontWeight: FontWeight.w700,
-              height: 1.21,
-            ),
+            style: AppTextStyles.heading1,
           ),
         ),
         TextButton(

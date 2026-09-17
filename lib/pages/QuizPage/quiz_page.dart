@@ -83,8 +83,6 @@ class _QuizPageState extends State<QuizPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Quiz'),
-        backgroundColor: AppColors.highlight,
-        foregroundColor: Colors.white,
         actions: [
           IconButton(
             tooltip: 'Refresh',

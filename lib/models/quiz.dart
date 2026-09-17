@@ -168,12 +168,14 @@ class MyQuizzes {
   final List<Quizes> open;
   final List<Quizes> inGame;
   final List<Quizes> ended;
+  final List<Quizes> quarantine;
 
   const MyQuizzes({
     this.waiting = const [],
     this.open = const [],
     this.inGame = const [],
     this.ended = const [],
+    this.quarantine = const [],
   });
 
   factory MyQuizzes.fromJson(Map<String, dynamic> json) {
@@ -188,10 +190,12 @@ class MyQuizzes {
       open: parse('open'),
       inGame: parse('in-Game'),
       ended: parse('ended'),
+      quarantine: parse('quarantine'),
     );
   }
 
-  List<Quizes> get all => [...waiting, ...open, ...inGame, ...ended];
+  List<Quizes> get all =>
+      [...waiting, ...open, ...inGame, ...ended, ...quarantine];
 
   bool get isEmpty => all.isEmpty;
 
@@ -200,6 +204,7 @@ class MyQuizzes {
         (status: 'open', quizzes: open),
         (status: 'in-Game', quizzes: inGame),
         (status: 'ended', quizzes: ended),
+        (status: 'quarantine', quizzes: quarantine),
       ];
 }
 

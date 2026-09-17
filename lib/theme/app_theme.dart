@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class AppColors {
   AppColors._();
 
   static const primary = Color(0xFF4648D4);
+  static const brandDeep = Color(0xFF4F46E5);
   static const highlight = Color(0xFF6063EE);
   static const ink = Color(0xFF111C2D);
   static const muted = Color(0xFF464554);
@@ -12,6 +14,54 @@ class AppColors {
   static const border = Color(0xFFC7C4D7);
   static const onHighlight = Color(0xFFFFFBFF);
   static const background = Color(0xFFF0EFFF);
+  static const lineLight = Color(0xFFF1F5F9);
+
+  static const success = Color(0xFF10B981);
+  static const successDark = Color(0xFF059669);
+  static const successBg = Color(0xFFECFDF5);
+  static const successBorder = Color(0xFFA7F3D0);
+
+  static const warning = Color(0xFFF59E0B);
+  static const warningDark = Color(0xFFD97706);
+  static const warningBg = Color(0xFFFFFBEB);
+  static const warningBorder = Color(0xFFFDE68A);
+
+  static const neutral = Color(0xFF94A3B8);
+  static const neutralDark = Color(0xFF475569);
+  static const neutralBg = Color(0xFFF1F5F9);
+  static const neutralBorder = Color(0xFFE2E8F0);
+}
+
+class AppTextStyles {
+  AppTextStyles._();
+
+  static final heading1 = GoogleFonts.montserrat(
+    color: AppColors.ink,
+    fontSize: 28,
+    fontWeight: FontWeight.w700,
+    height: 1.21,
+  );
+
+  static final heading2 = GoogleFonts.montserrat(
+    color: AppColors.ink,
+    fontSize: 18,
+    fontWeight: FontWeight.w500,
+    height: 1.56,
+  );
+
+  static final bodyMeta = GoogleFonts.plusJakartaSans(
+    color: AppColors.muted,
+    fontSize: 12,
+    fontWeight: FontWeight.w600,
+    height: 1.33,
+  );
+
+  static final bodyCaption = GoogleFonts.plusJakartaSans(
+    color: AppColors.muted,
+    fontSize: 11,
+    fontWeight: FontWeight.w500,
+    height: 1.50,
+  );
 }
 
 class AppTheme {
@@ -25,10 +75,12 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: scheme,
-      appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.highlight,
-        foregroundColor: Colors.white,
+      appBarTheme: AppBarTheme(
+        backgroundColor: AppColors.cardBg,
+        foregroundColor: AppColors.ink,
         elevation: 0,
+        scrolledUnderElevation: 0,
+        titleTextStyle: AppTextStyles.heading1,
       ),
       bottomNavigationBarTheme: const BottomNavigationBarThemeData(
         selectedItemColor: AppColors.primary,

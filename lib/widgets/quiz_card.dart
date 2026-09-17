@@ -41,12 +41,7 @@ class QuizCard extends StatelessWidget {
                   children: [
                     Text(
                       quiz.title,
-                      style: GoogleFonts.montserrat(
-                        color: AppColors.ink,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                        height: 1.56,
-                      ),
+                      style: AppTextStyles.heading2,
                     ),
                     const SizedBox(height: 8),
                     Row(
@@ -137,12 +132,7 @@ class QuizCard extends StatelessWidget {
         const SizedBox(width: 4),
         Text(
           text,
-          style: GoogleFonts.plusJakartaSans(
-            color: AppColors.muted,
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            height: 1.33,
-          ),
+          style: AppTextStyles.bodyMeta,
         ),
       ],
     );

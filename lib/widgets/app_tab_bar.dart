@@ -21,9 +21,9 @@ class AppTabBar extends StatelessWidget implements PreferredSizeWidget {
     return TabBar(
       isScrollable: false,
       indicatorSize: TabBarIndicatorSize.tab,
-      labelColor: AppColors.onHighlight,
-      unselectedLabelColor: AppColors.onHighlight.withValues(alpha: 0.7),
-      indicatorColor: AppColors.onHighlight,
+      labelColor: AppColors.brandDeep,
+      unselectedLabelColor: AppColors.neutralDark,
+      indicatorColor: AppColors.brandDeep,
       labelStyle: labelStyle,
       unselectedLabelStyle: labelStyle,
       tabs: [

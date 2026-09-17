@@ -270,8 +270,6 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Kalkulator'),
-        backgroundColor: AppColors.highlight,
-        foregroundColor: Colors.white,
       ),
       body: Column(
         children: [

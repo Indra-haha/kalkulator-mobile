@@ -96,8 +96,6 @@ class _RoomsPageState extends State<RoomsPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(title == null || title.isEmpty ? 'Rooms' : title),
-        backgroundColor: AppColors.highlight,
-        foregroundColor: Colors.white,
         actions: [
           IconButton(
             tooltip: 'Refresh',
