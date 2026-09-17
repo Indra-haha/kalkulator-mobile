@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../services/api_client.dart';
 import '../services/auth_service.dart';
 import '../services/session_service.dart';
+import '../theme/app_theme.dart';
 import 'button.dart';
 import 'regis_page.dart';
 
@@ -95,7 +96,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF0EFFF),
+      backgroundColor: AppColors.background,
       body: Center(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
@@ -125,7 +126,7 @@ class _LoginPageState extends State<LoginPage> {
                       style: TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
-                        color: Colors.deepPurple,
+                        color: AppColors.primary,
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -166,7 +167,7 @@ class _LoginPageState extends State<LoginPage> {
                     ElevatedButton(
                       onPressed: _isLoading ? null : _login,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.deepPurple,
+                        backgroundColor: AppColors.primary,
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
@@ -198,7 +199,7 @@ class _LoginPageState extends State<LoginPage> {
                       child: const Text(
                         'Belum punya akun? Registrasi',
                         style: TextStyle(
-                          color: Colors.deepPurple,
+                          color: AppColors.primary,
                           fontWeight: FontWeight.w600,
                         ),
                       ),

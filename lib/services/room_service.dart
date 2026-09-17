@@ -17,7 +17,7 @@ class RoomService {
   }) async {
     final response = await http
         .post(
-          Uri.parse('${ApiClient.baseUrl}/api/room'),
+          Uri.parse('${ApiClient.baseUrl}/api/create/room'),
           headers: ApiClient.headers(token: token, body: true),
           body: jsonEncode({
             'quiz_id': quizId,
@@ -35,29 +35,6 @@ class RoomService {
     return Room.fromJson((data['room'] as Map).cast<String, dynamic>());
   }
 
-  Future<List<Room>> getRooms({
-    required String token,
-    String? quizId,
-  }) async {
-    final uri = Uri.parse('${ApiClient.baseUrl}/api/rooms').replace(
-      queryParameters: quizId == null ? null : {'quiz_id': quizId},
-    );
-    final response = await http
-        .get(uri, headers: ApiClient.headers(token: token))
-        .timeout(const Duration(seconds: 10));
-    final data = ApiClient.decode(response);
-    if (response.statusCode != 200) {
-      throw ApiException(
-        ApiClient.message(data),
-        statusCode: response.statusCode,
-      );
-    }
-    final list = data['rooms'] as List;
-    return list
-        .map((e) => Room.fromJson((e as Map).cast<String, dynamic>()))
-        .toList();
-  }
-
   Future<Room> updateRoomStatus({
     required String token,
     required String roomId,
@@ -67,7 +44,7 @@ class RoomService {
         .put(
           Uri.parse('${ApiClient.baseUrl}/api/room/$roomId/status'),
           headers: ApiClient.headers(token: token, body: true),
-          body: jsonEncode({'status': status}),
+          body: jsonEncode({'room_id': roomId, 'status': status}),
         )
         .timeout(const Duration(seconds: 10));
     final data = ApiClient.decode(response);

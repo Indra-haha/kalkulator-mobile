@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../theme/app_theme.dart';
+import '../widgets/app_tab_bar.dart';
 import 'hitungkonversi.dart';
 
 class KonversiPage extends StatelessWidget {
@@ -11,17 +13,10 @@ class KonversiPage extends StatelessWidget {
       child: Scaffold(
         appBar: AppBar(
           title: const Text('Konversi Kalender'),
-          backgroundColor: Colors.deepPurple,
+          backgroundColor: AppColors.highlight,
           foregroundColor: Colors.white,
-          bottom: const TabBar(
-            isScrollable: true,
-            indicatorColor: Colors.white,
-            tabs: [
-              Tab(text: 'Hijriah'),
-              Tab(text: 'Umur'),
-              Tab(text: 'Weton'),
-              Tab(text: 'Saka Bali'),
-            ],
+          bottom: const AppTabBar(
+            tabs: ['Hijriah', 'Umur', 'Weton', 'Saka Bali'],
           ),
         ),
         body: TabBarView(
@@ -105,7 +100,7 @@ class _TanggalTabState extends State<_TanggalTab> {
           const SizedBox(height: 24),
           if (hasil != null)
             Card(
-              color: Colors.deepPurple.shade50,
+              color: AppColors.softBg,
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Text(
@@ -175,7 +170,7 @@ class _UmurTabState extends State<_UmurTab> {
           const SizedBox(height: 24),
           if (umur != null)
             Card(
-              color: Colors.deepPurple.shade50,
+              color: AppColors.softBg,
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Text(

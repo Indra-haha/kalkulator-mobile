@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_theme.dart';
 import 'home_page.dart';
 import 'kalkulator_page.dart';
-import 'quiz_page.dart';
+import 'QuizPage/quiz_page.dart';
 import 'konversi_page.dart';
 
 class MainShell extends StatefulWidget {
@@ -36,7 +37,7 @@ class _MainShellState extends State<MainShell> {
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
         currentIndex: _index,
-        selectedItemColor: Colors.deepPurple,
+        selectedItemColor: AppColors.primary,
         unselectedItemColor: Colors.grey,
         onTap: (i) => setState(() => _index = i),
         items: const [

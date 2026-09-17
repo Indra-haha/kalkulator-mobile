@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 
-import '../models/quiz.dart';
-import '../services/api_client.dart';
-import '../services/quiz_service.dart';
-import '../services/session_service.dart';
-import 'login_page.dart';
+import '../../models/quiz.dart';
+import '../../services/api_client.dart';
+import '../../services/quiz_cache_service.dart';
+import '../../services/quiz_service.dart';
+import '../../services/session_service.dart';
+import '../../theme/app_theme.dart';
+import '../login_page.dart';
 
 class QuizPage extends StatefulWidget {
   final Map<String, dynamic>? user;
@@ -17,7 +19,7 @@ class QuizPage extends StatefulWidget {
 }
 
 class _QuizPageState extends State<QuizPage> {
-  List<Quizes> _quizes = [];
+  AllQuizzes _allQuizzes = const AllQuizzes();
   bool _loading = true;
   String? _error;
 
@@ -40,10 +42,11 @@ class _QuizPageState extends State<QuizPage> {
     }
 
     try {
-      final data = await QuizService.instance.getMyQuizzes(token);
+      final data = await QuizService.instance.getQuizzes(token);
+      await QuizCacheService.instance.saveAllQuizzes(data);
       if (!mounted) return;
       setState(() {
-        _quizes = data;
+        _allQuizzes = data;
         _loading = false;
       });
     } on ApiException catch (e) {
@@ -58,7 +61,7 @@ class _QuizPageState extends State<QuizPage> {
         _loading = false;
       });
     } catch (e) {
-      debugPrint('Quiz load error: $e');
+      debugPrint('Quizzes load error: $e');
       if (!mounted) return;
       setState(() {
         _error = 'Tidak dapat terhubung ke server. ($e)';
@@ -79,9 +82,16 @@ class _QuizPageState extends State<QuizPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My Quiz'),
-        backgroundColor: Colors.deepPurple,
+        title: const Text('Quiz'),
+        backgroundColor: AppColors.highlight,
         foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            tooltip: 'Refresh',
+            onPressed: _loading ? null : _loadData,
+            icon: const Icon(Icons.refresh),
+          ),
+        ],
       ),
       body: _buildBody(),
     );
@@ -111,7 +121,7 @@ class _QuizPageState extends State<QuizPage> {
             ElevatedButton(
               onPressed: _loadData,
               style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.deepPurple,
+                backgroundColor: AppColors.primary,
                 foregroundColor: Colors.white,
               ),
               child: const Text('Coba Lagi'),
@@ -121,81 +131,85 @@ class _QuizPageState extends State<QuizPage> {
       );
     }
 
-    if (_quizes.isEmpty) {
+    final groups = _allQuizzes.groups
+        .map(
+          (g) => (
+            status: g.status,
+            rooms: g.quizzes.expand((q) => q.rooms).toList(),
+          ),
+        )
+        .where((g) => g.rooms.isNotEmpty)
+        .toList();
+
+    if (groups.isEmpty) {
       return const Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.quiz_outlined, size: 48, color: Colors.grey),
+            Icon(Icons.meeting_room_outlined, size: 48, color: Colors.grey),
             SizedBox(height: 12),
-            Text('Belum ada quiz untukmu.'),
+            Text('Belum ada room.'),
           ],
         ),
       );
     }
 
-    return ListView.separated(
+    return ListView(
       padding: const EdgeInsets.all(16.0),
-      itemCount: _quizes.length,
-      separatorBuilder: (_, _) => const SizedBox(height: 8),
-      itemBuilder: (context, index) {
-        final data = _quizes[index];
-        return Card(
-          child: Padding(
-            padding: const EdgeInsets.all(12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    CircleAvatar(
-                      backgroundColor: Colors.deepPurple,
-                      foregroundColor: Colors.white,
-                      child: Text('${index + 1}'),
-                    ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        data.title,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                if (data.description.isNotEmpty) ...[
-                  const SizedBox(height: 6),
-                  Text(
-                    data.description,
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w400,
-                    ),
-                  ),
-                ],
-                if (data.token.isNotEmpty) ...[
-                  const SizedBox(height: 6),
-                  Text(
-                    'Token: ${data.token}',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Colors.deepPurple,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 6),
-                Text(
-                  '${data.questions.length} soal',
-                  style: const TextStyle(fontSize: 13, color: Colors.black54),
-                ),
-              ],
-            ),
+      children: [
+        for (final group in groups) ...[
+          _buildFilterHeader(group.status, group.rooms.length),
+          const SizedBox(height: 8),
+          ...group.rooms.map(_buildRoomTile),
+          const SizedBox(height: 16),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildFilterHeader(String status, int count) {
+    return Row(
+      children: [
+        Text(
+          status,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+            color: AppColors.primary,
           ),
-        );
-      },
+        ),
+        const SizedBox(width: 8),
+        Chip(
+          label: Text('$count'),
+          visualDensity: VisualDensity.compact,
+        ),
+      ],
+    );
+  }
+
+  Widget _buildRoomTile(RoomSummary room) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 8),
+      child: ListTile(
+        leading: const Icon(
+          Icons.meeting_room_outlined,
+          color: AppColors.primary,
+        ),
+        title: Text(
+          room.kode,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        subtitle: room.createdAt.isEmpty ? null : Text(room.createdAt),
+        trailing: room.status.isEmpty
+            ? null
+            : Chip(
+                label: Text(room.status),
+                visualDensity: VisualDensity.compact,
+              ),
+      ),
     );
   }
 }

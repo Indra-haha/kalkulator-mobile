@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'pages/login_page.dart';
+import 'theme/app_theme.dart';
 
 void main() {
   runApp(const KalkulatorApp());
@@ -14,10 +15,7 @@ class KalkulatorApp extends StatelessWidget {
     return MaterialApp(
       title: 'Aplikasi Kalkulator',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.light,
       home: const LoginPage(),
     );
   }

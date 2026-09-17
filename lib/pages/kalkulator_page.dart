@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_theme.dart';
+
 void main() {
   runApp(
     const MaterialApp(
@@ -268,7 +270,7 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Kalkulator'),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: AppColors.highlight,
         foregroundColor: Colors.white,
       ),
       body: Column(
@@ -303,7 +305,7 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
                   Container(
                     padding: const EdgeInsets.all(16),
                     decoration: BoxDecoration(
-                      color: Colors.deepPurple.withValues(alpha: 0.1),
+                      color: AppColors.primary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Text(
@@ -338,14 +340,14 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
                 Color textColor = Colors.black;
 
                 if (btn == '=') {
-                  btnColor = Colors.deepPurple;
+                  btnColor = AppColors.primary;
                   textColor = Colors.white;
                 } else if (btn == 'C' || btn == '⌫') {
                   btnColor = Colors.redAccent;
                   textColor = Colors.white;
                 } else if (['+', '-', '×', '÷', 'G/G', 'Sn'].contains(btn)) {
-                  btnColor = Colors.deepPurple.shade100;
-                  textColor = Colors.deepPurple.shade900;
+                  btnColor = AppColors.softBg;
+                  textColor = AppColors.ink;
                 }
 
                 return ElevatedButton(
