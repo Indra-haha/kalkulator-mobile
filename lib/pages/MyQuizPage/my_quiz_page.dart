@@ -242,7 +242,7 @@ class _MyQuizPageState extends State<MyQuizPage> {
             for (final status in _statusFilters) ...[
               if (status != _statusFilters.first) const SizedBox(width: 8),
               StatusFilterChip(
-                label: status,
+                label: "${status[0].toUpperCase()}${status.substring(1)}",
                 selected: _selectedStatus == status,
                 onTap: () => setState(() => _selectedStatus = status),
               ),
