@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:numerus/pages/MyQuizPage/quiz_test_page.dart';
 
 import '../../models/quiz.dart';
 import '../../models/room.dart';
@@ -10,14 +9,18 @@ import '../../services/quiz_cache_service.dart';
 import '../../services/quiz_service.dart';
 import '../../services/session_service.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/quiz_status.dart';
+import '../../utils/format.dart';
 import '../../widgets/app_header_bar.dart';
 import '../../widgets/app_pill_button.dart';
+import '../../widgets/empty_state_view.dart';
 import '../../widgets/quarantine_card.dart';
 import '../../widgets/room_card.dart';
 import '../../widgets/status_filter_chip.dart';
 import '../login_page.dart';
 import 'create_room_sheet.dart';
 import 'detail_room_page.dart';
+import 'quiz_test_page.dart';
 
 const _statusFilters = ['waiting', 'open', 'in-Game', 'ended'];
 
@@ -41,15 +44,11 @@ class _MyQuizPageState extends State<MyQuizPage> {
           if (room.status == status) (quiz: quiz, room: room),
     ];
     entries.sort((a, b) {
-      final t = _time(a.room.createdAt);
-      final o = _time(b.room.createdAt);
+      final t = parseTimeOrEpoch(a.room.createdAt);
+      final o = parseTimeOrEpoch(b.room.createdAt);
       return o.compareTo(t);
     });
     return entries;
-  }
-
-  DateTime _time(String raw) {
-    return DateTime.tryParse(raw) ?? DateTime.fromMillisecondsSinceEpoch(0);
   }
 
   Future<void> _openRooms(Quizes quiz) async {
@@ -173,15 +172,15 @@ class _MyQuizPageState extends State<MyQuizPage> {
         return;
       }
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(e.message)),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.message)));
     } catch (e) {
       debugPrint('MyQuiz reload error: $e');
       if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Gagal memuat ulang data.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Gagal memuat ulang data.')));
     }
   }
 
@@ -198,7 +197,7 @@ class _MyQuizPageState extends State<MyQuizPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9FF),
       appBar: AppHeaderBar(
-        title: 'Quiz Saya', 
+        title: 'Quiz Saya',
         leading: IconButton(
           tooltip: 'Kembali',
           onPressed: () => Navigator.of(context).pop(),
@@ -219,21 +218,13 @@ class _MyQuizPageState extends State<MyQuizPage> {
     if (_data.isEmpty) return _buildEmpty();
 
     return ListView(
-      padding: const EdgeInsets.only(
-        left: 20,
-        right: 20,
-        top: 16,
-        bottom: 112,
-      ),
+      padding: const EdgeInsets.only(left: 20, right: 20, top: 16, bottom: 112),
       children: [
         if (_data.quarantine.isNotEmpty) ...[
           for (final quiz in _data.quarantine)
             Padding(
               padding: const EdgeInsets.only(bottom: 12),
-              child: QuarantineCard(
-                quiz: quiz,
-                onTap: () => _openRooms(quiz),
-              ),
+              child: QuarantineCard(quiz: quiz, onTap: () => _openRooms(quiz)),
             ),
           const SizedBox(height: 12),
         ],
@@ -242,7 +233,7 @@ class _MyQuizPageState extends State<MyQuizPage> {
             for (final status in _statusFilters) ...[
               if (status != _statusFilters.first) const SizedBox(width: 8),
               StatusFilterChip(
-                label: "${status[0].toUpperCase()}${status.substring(1)}",
+                label: QuizStatus.labelOf(status),
                 selected: _selectedStatus == status,
                 onTap: () => setState(() => _selectedStatus = status),
               ),
@@ -261,19 +252,9 @@ class _MyQuizPageState extends State<MyQuizPage> {
     if (entries.isEmpty) {
       return Padding(
         padding: const EdgeInsets.symmetric(vertical: 48),
-        child: Column(
-          children: [
-            Icon(Icons.meeting_room_outlined, size: 48, color: AppColors.neutral),
-            const SizedBox(height: 12),
-            Text(
-              'Tidak ada room dengan status "$status".',
-              textAlign: TextAlign.center,
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 14,
-                color: AppColors.muted,
-              ),
-            ),
-          ],
+        child: EmptyStateView(
+          icon: Icons.meeting_room_outlined,
+          message: 'Tidak ada room dengan status "$status".',
         ),
       );
     }
@@ -295,15 +276,9 @@ class _MyQuizPageState extends State<MyQuizPage> {
   }
 
   Widget _buildEmpty() {
-    return const Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.quiz_outlined, size: 48, color: Colors.grey),
-          SizedBox(height: 12),
-          Text('Belum ada quiz untukmu.'),
-        ],
-      ),
+    return const EmptyStateView(
+      icon: Icons.quiz_outlined,
+      message: 'Belum ada quiz untukmu.',
     );
   }
 }

@@ -8,7 +8,12 @@ import '../../services/quiz_service.dart';
 import '../../services/room_service.dart';
 import '../../services/session_service.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/quiz_option_theme.dart';
+import '../../theme/quiz_status.dart';
+import '../../utils/format.dart';
 import '../../widgets/app_header_bar.dart';
+import '../../widgets/empty_state_view.dart';
+import '../../widgets/error_state_view.dart';
 import '../../widgets/section_header.dart';
 import '../../widgets/status_badge.dart';
 import '../login_page.dart';
@@ -18,11 +23,11 @@ const _heroBg = Color(0xFFE7EEFF);
 const _optionBg = Color(0xFFF0F3FF);
 const _ptsColor = Color(0xFF825100);
 const _purpleBadge = Color(0xFF8455EF);
-const _optionColors = [
-  Color(0xFF4648D4),
-  Color(0xFFA36700),
-  Color(0xFF1B6D24),
-  Color(0xFFBA1A1A),
+final _optionColors = [
+  optionThemes[1].dot,
+  optionThemes[2].dot,
+  optionThemes[3].dot,
+  optionThemes[0].dot,
 ];
 
 typedef PublishResult = ({String previous, String next});
@@ -135,59 +140,22 @@ class _RoomsPageState extends State<RoomsPage> {
     }
 
     if (quiz == null && _error != null) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.error_outline, size: 48, color: Colors.redAccent),
-            const SizedBox(height: 12),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Text(
-                _error!,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 14),
-              ),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _load,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Coba Lagi'),
-            ),
-          ],
-        ),
-      );
+      return ErrorStateView(message: _error!, onRetry: _load);
     }
 
     if (quiz == null) {
-      return const Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.quiz_outlined, size: 48, color: Colors.grey),
-            SizedBox(height: 12),
-            Text('Quiz tidak ditemukan.'),
-          ],
-        ),
+      return const EmptyStateView(
+        icon: Icons.quiz_outlined,
+        message: 'Quiz tidak ditemukan.',
       );
     }
 
     final rooms = quiz.rooms;
 
     if (rooms.isEmpty) {
-      return const Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.meeting_room_outlined, size: 48, color: Colors.grey),
-            SizedBox(height: 12),
-            Text('Belum ada room untuk quiz ini.'),
-          ],
-        ),
+      return const EmptyStateView(
+        icon: Icons.meeting_room_outlined,
+        message: 'Belum ada room untuk quiz ini.',
       );
     }
 
@@ -246,16 +214,16 @@ class _RoomsPageState extends State<RoomsPage> {
                   ),
                   if (quiz.title.isNotEmpty) ...[
                     const SizedBox(height: 6),
-                    Text(
-                      quiz.title,
-                      style: const TextStyle(fontSize: 14),
-                    ),
+                    Text(quiz.title, style: const TextStyle(fontSize: 14)),
                   ],
                   if (data.createdAt.isNotEmpty) ...[
                     const SizedBox(height: 6),
                     Text(
                       data.createdAt,
-                      style: const TextStyle(fontSize: 13, color: Colors.black54),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: Colors.black54,
+                      ),
                     ),
                   ],
                 ],
@@ -333,8 +301,7 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
       await QuizCacheService.instance.saveMyQuizzes(data);
       final quiz = _findQuiz(data, widget.quizId);
       if (!mounted) return;
-      final room =
-          quiz == null ? null : _findRoom(quiz, widget.room);
+      final room = quiz == null ? null : _findRoom(quiz, widget.room);
       setState(() {
         _quiz = quiz;
         if (room != null) _room = room;
@@ -393,9 +360,7 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
         status: next,
       );
       if (!mounted) return;
-      Navigator.of(context).pop(
-        (previous: _room.status, next: next),
-      );
+      Navigator.of(context).pop((previous: _room.status, next: next));
     } on ApiException catch (e) {
       if (e.statusCode == 401) {
         await SessionService.instance.clear();
@@ -404,8 +369,9 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
       }
       if (!mounted) return;
       setState(() => _publishing = false);
-      ScaffoldMessenger.of(context)
-          .showSnackBar(SnackBar(content: Text(e.message)));
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(e.message)));
     } catch (e) {
       debugPrint('Publish error: $e');
       if (!mounted) return;
@@ -449,44 +415,13 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
     }
 
     if (quiz == null && _error != null) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.error_outline, size: 48, color: Colors.redAccent),
-            const SizedBox(height: 12),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Text(
-                _error!,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 14),
-              ),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: () => _load(),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Coba Lagi'),
-            ),
-          ],
-        ),
-      );
+      return ErrorStateView(message: _error!, onRetry: _load);
     }
 
     if (quiz == null) {
-      return const Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.quiz_outlined, size: 48, color: Colors.grey),
-            SizedBox(height: 12),
-            Text('Quiz tidak ditemukan.'),
-          ],
-        ),
+      return const EmptyStateView(
+        icon: Icons.quiz_outlined,
+        message: 'Quiz tidak ditemukan.',
       );
     }
 
@@ -546,8 +481,12 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
             runSpacing: 8,
             crossAxisAlignment: WrapCrossAlignment.center,
             children: [
-              if (_room.kode != null && _room.kode!.isNotEmpty)
-                _pill(color: _purpleBadge, textColor: Colors.white, text: _room.kode!),
+              if (_room.kode.isNotEmpty)
+                _pill(
+                  color: _purpleBadge,
+                  textColor: Colors.white,
+                  text: _room.kode,
+                ),
               _statusPill(),
             ],
           ),
@@ -576,7 +515,7 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
           _statTile(
             icon: Icons.timer_outlined,
             iconBg: const Color(0xFFFFDDB8),
-            value: _formatDuration(_totalDuration(quiz)),
+            value: formatDuration(totalDuration(quiz)),
             label: 'Durasi Kuis',
           ),
         ],
@@ -639,7 +578,7 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
           ),
           const SizedBox(width: 4),
           Text(
-            _statusLabel(_room.status),
+            QuizStatus.labelOf(_room.status),
             style: GoogleFonts.plusJakartaSans(
               color: AppColors.brandDeep,
               fontSize: 12,
@@ -650,21 +589,6 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
         ],
       ),
     );
-  }
-
-  String _statusLabel(String status) {
-    switch (status) {
-      case 'waiting':
-        return 'Waiting';
-      case 'open':
-        return 'Open';
-      case 'in-Game':
-        return 'In-Game';
-      case 'ended':
-        return 'Ended';
-      default:
-        return status;
-    }
   }
 
   Widget _statTile({
@@ -754,7 +678,7 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
               _pill(
                 color: _heroBg,
                 textColor: AppColors.muted,
-                text: _formatQDuration(q.duration),
+                text: formatQDuration(q.duration),
               ),
               const Spacer(),
               Text(
@@ -921,28 +845,5 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
               ),
       ),
     );
-  }
-
-  double _totalDuration(Quizes quiz) {
-    var total = 0.0;
-    for (final q in quiz.questions) {
-      total += q.duration;
-    }
-    return total;
-  }
-
-  String _formatDuration(double totalSeconds) {
-    final total = totalSeconds.round();
-    if (total < 60) return '$total Detik';
-    final m = total ~/ 60;
-    final s = total % 60;
-    if (s == 0) return '$m Menit';
-    return '$m Menit $s Detik';
-  }
-
-  String _formatQDuration(double d) {
-    return d == d.roundToDouble()
-        ? '${d.toInt()} Detik'
-        : '${d.toStringAsFixed(1)} Detik';
   }
 }

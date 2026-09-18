@@ -30,6 +30,7 @@ class KalkulatorEngine {
   static Expr kurang(Expr a, Expr b) => BinerExpr(a, '-', b);
   static Expr kali(Expr a, Expr b) => BinerExpr(a, '×', b);
   static Expr bagi(Expr a, Expr b) => BinerExpr(a, '÷', b);
+  static Expr negasi(Expr target) => NegExpr(target);
 
   static double? hitung(Expr expr) {
     switch (expr) {
@@ -43,9 +44,12 @@ class KalkulatorEngine {
         final b = hitung(kanan);
         if (a == null || b == null) return null;
         switch (opr) {
-          case '+': return a + b;
-          case '-': return a - b;
-          case '×': return a * b;
+          case '+':
+            return a + b;
+          case '-':
+            return a - b;
+          case '×':
+            return a * b;
           case '÷':
             if (b == 0) return null;
             return a / b;
@@ -81,8 +85,82 @@ class KalkulatorEngine {
     if (hasilHitung == null) return 0;
 
     int finalScore = hasilHitung.round();
-    
+
     // Minimal tetap mendapat 5 poin jika benar, atau 0 jika waktu habis total
     return finalScore < 5 && sisaMs > 0 ? 5 : finalScore;
+  }
+
+  static Expr? parse(String raw) {
+    List<String> tokens = _tokenize(raw);
+    if (tokens.isEmpty) return null;
+
+    Expr? expr = _tryParse(tokens);
+    if (expr == null && ['+', '-', '×', '÷'].contains(tokens.last)) {
+      tokens = tokens.sublist(0, tokens.length - 1);
+      expr = _tryParse(tokens);
+    }
+    return expr;
+  }
+
+  static List<String> _tokenize(String raw) {
+    return RegExp(
+      r'(\d+[\d,.]*|[+\-×÷])',
+    ).allMatches(raw).map((m) => m.group(1)!).toList();
+  }
+
+  static Expr? _tryParse(List<String> tokens) {
+    int pos = 0;
+
+    Expr? parseAngka() {
+      if (pos >= tokens.length) return null;
+      final double? nilai = double.tryParse(tokens[pos].replaceAll(',', '.'));
+      if (nilai == null) return null;
+      pos++;
+      return AngkaExpr(nilai);
+    }
+
+    Expr? parseUnary() {
+      if (pos >= tokens.length) return null;
+      final String token = tokens[pos];
+      if (token == '-') {
+        pos++;
+        final Expr? operand = parseUnary();
+        return operand == null ? null : NegExpr(operand);
+      }
+      if (token == '+') return null;
+      return parseAngka();
+    }
+
+    Expr? parseKaliBagi() {
+      final Expr? first = parseUnary();
+      if (first == null) return null;
+      Expr left = first;
+      while (pos < tokens.length &&
+          (tokens[pos] == '×' || tokens[pos] == '÷')) {
+        final String opr = tokens[pos++];
+        final Expr? right = parseUnary();
+        if (right == null) return null;
+        left = BinerExpr(left, opr, right);
+      }
+      return left;
+    }
+
+    Expr? parseTambahKurang() {
+      final Expr? first = parseKaliBagi();
+      if (first == null) return null;
+      Expr left = first;
+      while (pos < tokens.length &&
+          (tokens[pos] == '+' || tokens[pos] == '-')) {
+        final String opr = tokens[pos++];
+        final Expr? right = parseKaliBagi();
+        if (right == null) return null;
+        left = BinerExpr(left, opr, right);
+      }
+      return left;
+    }
+
+    final Expr? expr = parseTambahKurang();
+    if (expr == null || pos != tokens.length) return null;
+    return expr;
   }
 }

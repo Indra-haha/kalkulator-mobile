@@ -68,7 +68,7 @@ class _TanggalTabState extends State<_TanggalTab> {
     final result = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
-      firstDate: DateTime(1900),
+      firstDate: DateTime(1500),
       lastDate: DateTime(2100),
     );
 
@@ -136,7 +136,7 @@ class _UmurTabState extends State<_UmurTab> {
     final result = await showDatePicker(
       context: context,
       initialDate: DateTime(now.year - 20, now.month, now.day),
-      firstDate: DateTime(1900),
+      firstDate: DateTime(1500),
       lastDate: now,
     );
 

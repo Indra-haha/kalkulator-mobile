@@ -6,6 +6,7 @@ import '../../services/api_client.dart';
 import '../../services/quiz_service.dart';
 import '../../services/session_service.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/quiz_option_theme.dart';
 import '../../widgets/app_header_bar.dart';
 
 const _fieldBg = Color(0xFFF0F3FF);
@@ -13,53 +14,14 @@ const _placeholder = Color(0xFF6B7280);
 const _questionCardBg = Color(0xFFE7EEFF);
 const _danger = Color(0xFFBA1A1A);
 
-class _AnswerStyle {
-  final Color background;
-  final Color border;
-  final Color dot;
-  final String hint;
-
-  const _AnswerStyle({
-    required this.background,
-    required this.border,
-    required this.dot,
-    required this.hint,
-  });
-}
-
-const _answerStyles = [
-  _AnswerStyle(
-    background: Color(0xFFFFDAD6),
-    border: Color(0xFF93000A),
-    dot: Color(0xFFBA1A1A),
-    hint: 'Jawaban merah...',
-  ),
-  _AnswerStyle(
-    background: Color(0xFFDBE1FF),
-    border: Color(0xFF001453),
-    dot: Color(0xFF4648D4),
-    hint: 'Jawaban biru...',
-  ),
-  _AnswerStyle(
-    background: Color(0xFFFFF9C4),
-    border: Color(0xFF825100),
-    dot: Color(0xFFA36700),
-    hint: 'Jawaban kuning...',
-  ),
-  _AnswerStyle(
-    background: Color(0xFFC8E6C9),
-    border: Color(0xFF1B5E20),
-    dot: Color(0xFF2E7D32),
-    hint: 'Jawaban hijau...',
-  ),
-];
-
 const _durations = [1.5, 2.0, 3.0, 5.0];
 
 class _QuestionData {
   final TextEditingController question = TextEditingController();
-  final List<TextEditingController> options =
-      List.generate(4, (_) => TextEditingController());
+  final List<TextEditingController> options = List.generate(
+    4,
+    (_) => TextEditingController(),
+  );
   final TextEditingController skor = TextEditingController();
   int? correctIdx;
   double duration = 2;
@@ -106,9 +68,9 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
   }
 
   void _showMessage(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   String? _validate() {
@@ -272,7 +234,8 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
   }) {
     return InputDecoration(
       hintText: hint,
-      hintStyle: hintStyle ??
+      hintStyle:
+          hintStyle ??
           GoogleFonts.montserrat(
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -398,9 +361,9 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
             ),
           ),
           const SizedBox(height: 16),
-          for (var i = 0; i < _answerStyles.length; i++) ...[
+          for (var i = 0; i < optionThemes.length; i++) ...[
             _buildAnswerField(question, i),
-            if (i < _answerStyles.length - 1) const SizedBox(height: 12),
+            if (i < optionThemes.length - 1) const SizedBox(height: 12),
           ],
           const SizedBox(height: 16),
           _buildDurationAndSkor(question),
@@ -410,13 +373,13 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
   }
 
   Widget _buildAnswerField(_QuestionData question, int index) {
-    final style = _answerStyles[index];
+    final style = optionThemes[index];
     final selected = question.correctIdx == index;
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: style.background,
+        color: style.bg,
         borderRadius: BorderRadius.circular(32),
         border: Border.all(color: style.border, width: 4),
       ),
@@ -587,8 +550,9 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
   }
 
   String _durationLabel(double duration) {
-    final value =
-        duration == duration.roundToDouble() ? duration.toInt() : duration;
+    final value = duration == duration.roundToDouble()
+        ? duration.toInt()
+        : duration;
     return '$value detik';
   }
 }

@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:numerus/widgets/app_pill_button.dart';
 
 import '../models/quiz.dart';
 import '../theme/app_theme.dart';
@@ -17,7 +15,7 @@ class RoomCard extends StatelessWidget {
     required this.quiz,
     required this.room,
     this.onTap,
-    this.onTestPressed ,
+    this.onTestPressed,
   });
 
   @override
@@ -63,10 +61,7 @@ class RoomCard extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       // Menggunakan AppTextStyles.bodyMeta (Plus Jakarta Sans, 12px, w600)
-                      Text(
-                        quiz.title,
-                        style: AppTextStyles.bodyMeta,
-                      ),
+                      Text(quiz.title, style: AppTextStyles.bodyMeta),
                     ],
                   ),
                 ),
@@ -83,84 +78,93 @@ class RoomCard extends StatelessWidget {
               ),
             ],
           ),
-          if(room.status == "waiting") ...[
+          if (room.status == "waiting") ...[
             const SizedBox(height: 16),
 
-            const SizedBox(height: 16),
-          // Bagian Bawah (Tombol Test di Kiri dan Tombol Check di Kanan)
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.only(top: 10),
-            decoration: const BoxDecoration(
-              border: Border(
-                top: BorderSide(
-                  width: 1,
-                  color: AppColors.lineLight,
+            // Bagian Bawah (Tombol Test di Kiri dan Tombol Check di Kanan)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.only(top: 10),
+              decoration: const BoxDecoration(
+                border: Border(
+                  top: BorderSide(width: 1, color: AppColors.lineLight),
                 ),
               ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                // Tombol Test
-                GestureDetector(
-                  onTap: onTestPressed,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: AppColors.neutralBg,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.neutralBorder),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Icon(Icons.preview, size: 14, color: AppColors.neutralDark),
-                        const SizedBox(width: 6),
-                        Text(
-                          'Preview',
-                          textAlign: TextAlign.center,
-                          style: AppTextStyles.bodyMeta.copyWith(
-                            color: AppColors.neutralDark,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                // Tombol Check (Monitor)
-                Material(
-                  color: AppColors.successDark,
-                  borderRadius: BorderRadius.circular(12),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(12),
-                    onTap: onTap,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  // Tombol Test
+                  GestureDetector(
+                    onTap: onTestPressed,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.neutralBg,
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.neutralBorder),
+                      ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Icon(Icons.checklist, size: 14, color: Colors.white),
+                          const Icon(
+                            Icons.preview,
+                            size: 14,
+                            color: AppColors.neutralDark,
+                          ),
                           const SizedBox(width: 6),
                           Text(
-                            'Check',
+                            'Preview',
                             textAlign: TextAlign.center,
                             style: AppTextStyles.bodyMeta.copyWith(
-                              color: Colors.white,
+                              color: AppColors.neutralDark,
                             ),
                           ),
                         ],
                       ),
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(width: 12),
+                  // Tombol Check (Monitor)
+                  Material(
+                    color: AppColors.successDark,
+                    borderRadius: BorderRadius.circular(12),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: onTap,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 6,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(
+                              Icons.checklist,
+                              size: 14,
+                              color: Colors.white,
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              'Check',
+                              textAlign: TextAlign.center,
+                              style: AppTextStyles.bodyMeta.copyWith(
+                                color: Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
           ],
-          
         ],
       ),
     );

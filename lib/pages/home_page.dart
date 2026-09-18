@@ -8,13 +8,15 @@ import '../services/quiz_cache_service.dart';
 import '../services/quiz_service.dart';
 import '../services/session_service.dart';
 import '../theme/app_theme.dart';
+import '../utils/format.dart';
 import '../widgets/app_header_bar.dart';
 import '../widgets/app_pill_button.dart';
+import '../widgets/empty_state_view.dart';
+import '../widgets/error_state_view.dart';
 import '../widgets/quiz_card.dart';
 import '../widgets/section_header.dart';
 import 'MyQuizPage/create_quiz_page.dart';
 import 'MyQuizPage/my_quiz_page.dart';
-import 'MyQuizPage/detail_room_page.dart';
 import 'QuizPage/detail_quiz_room_page.dart' show DetailQuizRoomPage;
 import 'login_page.dart';
 
@@ -126,9 +128,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   void _openAll() {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => MyQuizPage(data: _myQuizzes)),
-    );
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => MyQuizPage(data: _myQuizzes)));
   }
 
   ({String status, Quizes quiz})? _currentSection() {
@@ -148,29 +150,28 @@ class _HomePageState extends State<HomePage> {
   }
 
   DateTime _latestTime(Quizes quiz) {
-    var latest =
-        DateTime.tryParse(quiz.createdAt) ?? DateTime.fromMillisecondsSinceEpoch(0);
+    var latest = parseTimeOrEpoch(quiz.createdAt);
     for (final room in quiz.rooms) {
-      final time = DateTime.tryParse(room.createdAt);
-      if (time != null && time.isAfter(latest)) latest = time;
+      final time = parseTimeOrEpoch(room.createdAt);
+      if (time.isAfter(latest)) latest = time;
     }
     return latest;
   }
 
   Future<void> _onCreateQuiz() async {
-    final created = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(builder: (_) => const CreateQuizPage()),
-    );
+    final created = await Navigator.of(
+      context,
+    ).push<bool>(MaterialPageRoute(builder: (_) => const CreateQuizPage()));
     if (created != true || !mounted) return;
 
     await _loadData();
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Quiz berhasil dibuat.')),
-    );
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => MyQuizPage(data: _myQuizzes)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(const SnackBar(content: Text('Quiz berhasil dibuat.')));
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => MyQuizPage(data: _myQuizzes)));
   }
 
   @override
@@ -191,9 +192,7 @@ class _HomePageState extends State<HomePage> {
                 ? const SizedBox(
                     width: 20,
                     height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                    ),
+                    child: CircularProgressIndicator(strokeWidth: 2),
                   )
                 : const Icon(Icons.logout),
           ),
@@ -230,10 +229,7 @@ class _HomePageState extends State<HomePage> {
           const SizedBox(height: 16),
           SectionHeader(title: 'Quiz saya', onSeeAll: _openAll),
           const SizedBox(height: 16),
-          QuizCard(
-            quiz: section.quiz,
-            onTap: () => _openRooms(section.quiz),
-          ),
+          QuizCard(quiz: section.quiz, onTap: () => _openRooms(section.quiz)),
         ],
       ],
     );
@@ -372,44 +368,24 @@ class _HomePageState extends State<HomePage> {
   Widget _buildError() {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 48),
-      child: Column(
-        children: [
-          const Icon(Icons.error_outline, size: 48, color: Colors.redAccent),
-          const SizedBox(height: 12),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Text(
-              _error!,
-              textAlign: TextAlign.center,
-              style: GoogleFonts.plusJakartaSans(fontSize: 14, color: AppColors.muted),
-            ),
-          ),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: _loadData,
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.highlight,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Coba Lagi'),
-          ),
-        ],
+      child: ErrorStateView(
+        message: _error!,
+        onRetry: _loadData,
+        buttonColor: AppColors.highlight,
+        messageStyle: GoogleFonts.plusJakartaSans(
+          fontSize: 14,
+          color: AppColors.muted,
+        ),
       ),
     );
   }
 
   Widget _buildEmpty() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 48),
-      child: Column(
-        children: [
-          const Icon(Icons.quiz_outlined, size: 48, color: Colors.grey),
-          const SizedBox(height: 12),
-          Text(
-            'Belum ada quiz untukmu.',
-            style: GoogleFonts.plusJakartaSans(fontSize: 14, color: AppColors.muted),
-          ),
-        ],
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 48),
+      child: EmptyStateView(
+        icon: Icons.quiz_outlined,
+        message: 'Belum ada quiz untukmu.',
       ),
     );
   }

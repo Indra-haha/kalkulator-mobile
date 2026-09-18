@@ -7,6 +7,9 @@ import '../../services/quiz_cache_service.dart';
 import '../../services/quiz_service.dart';
 import '../../services/session_service.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/quiz_status.dart';
+import '../../widgets/empty_state_view.dart';
+import '../../widgets/error_state_view.dart';
 import '../../widgets/quiz_card.dart';
 import '../../widgets/section_header.dart';
 import '../../widgets/status_filter_chip.dart';
@@ -131,15 +134,6 @@ class _QuizPageState extends State<QuizPage> {
     ).push(MaterialPageRoute(builder: (_) => DetailQuizRoomPage(quiz: quiz)));
   }
 
-  String _statusLabel(String status) {
-    return switch (status) {
-      'open' => 'Open',
-      'in-Game' => 'In-Game',
-      'ended' => 'Ended',
-      _ => status,
-    };
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -164,14 +158,14 @@ class _QuizPageState extends State<QuizPage> {
                   for (final status in _statuses) ...[
                     if (status != _statuses.first) const SizedBox(width: 8),
                     StatusFilterChip(
-                      label: _statusLabel(status),
+                      label: QuizStatus.labelOf(status),
                       selected: _selectedStatus == status,
                       onTap: () => setState(() => _selectedStatus = status),
                     ),
                   ],
                 ],
               ),
-            ), 
+            ),
             const SizedBox(height: 8),
             Expanded(child: _buildResults()),
           ],
@@ -236,60 +230,18 @@ class _QuizPageState extends State<QuizPage> {
     }
 
     if (_error != null) {
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.error_outline, size: 48, color: Colors.redAccent),
-            const SizedBox(height: 12),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Text(
-                _error!,
-                textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 14),
-              ),
-            ),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _loadData,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primary,
-                foregroundColor: Colors.white,
-              ),
-              child: const Text('Coba Lagi'),
-            ),
-          ],
-        ),
-      );
+      return ErrorStateView(message: _error!, onRetry: _loadData);
     }
 
     final quizzes = _selectedQuizzes;
 
     if (quizzes.isEmpty) {
       final query = _searchController.text.trim();
-      return Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              query.isEmpty ? Icons.quiz_outlined : Icons.search_off,
-              size: 48,
-              color: Colors.grey,
-            ),
-            const SizedBox(height: 12),
-            Text(
-              query.isEmpty
-                  ? 'Belum ada quiz.'
-                  : 'Tidak ada hasil untuk "$query".',
-              style: GoogleFonts.plusJakartaSans(
-                fontSize: 14,
-                color: AppColors.muted,
-              ),
-              textAlign: TextAlign.center,
-            ),
-          ],
-        ),
+      return EmptyStateView(
+        icon: query.isEmpty ? Icons.quiz_outlined : Icons.search_off,
+        message: query.isEmpty
+            ? 'Belum ada quiz.'
+            : 'Tidak ada hasil untuk "$query".',
       );
     }
 

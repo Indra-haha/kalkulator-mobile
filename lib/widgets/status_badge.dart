@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../theme/app_theme.dart';
+import '../theme/quiz_status.dart';
 
 enum RoomStatus { waiting, open, inGame, ended }
 
@@ -58,25 +59,25 @@ class StatusBadge extends StatelessWidget {
       case RoomStatus.waiting:
         return (AppColors.brandDeep, Colors.white, AppColors.brandDeep);
       case RoomStatus.open:
-        return (AppColors.warningBg, AppColors.warningDark, AppColors.warningBorder);
+        return (
+          AppColors.warningBg,
+          AppColors.warningDark,
+          AppColors.warningBorder,
+        );
       case RoomStatus.inGame:
-        return (AppColors.successBg, AppColors.successDark, AppColors.successBorder);
+        return (
+          AppColors.successBg,
+          AppColors.successDark,
+          AppColors.successBorder,
+        );
       case RoomStatus.ended:
-        return (AppColors.neutralBg, AppColors.neutralDark, AppColors.neutralBorder);
+        return (
+          AppColors.neutralBg,
+          AppColors.neutralDark,
+          AppColors.neutralBorder,
+        );
     }
   }
 
-  static Color dotColor(String status) {
-    final s = _parse(status);
-    switch (s) {
-      case RoomStatus.waiting:
-        return AppColors.brandDeep;
-      case RoomStatus.open:
-        return AppColors.warning;
-      case RoomStatus.inGame:
-        return AppColors.success;
-      case RoomStatus.ended:
-        return AppColors.neutral;
-    }
-  }
+  static Color dotColor(String status) => QuizStatus.dotColor(status);
 }

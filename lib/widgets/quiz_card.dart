@@ -3,6 +3,8 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../models/quiz.dart';
 import '../theme/app_theme.dart';
+import '../theme/quiz_status.dart';
+import '../utils/format.dart';
 
 class QuizCard extends StatelessWidget {
   final Quizes quiz;
@@ -39,10 +41,7 @@ class QuizCard extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      quiz.title,
-                      style: AppTextStyles.heading2,
-                    ),
+                    Text(quiz.title, style: AppTextStyles.heading2),
                     const SizedBox(height: 8),
                     Row(
                       children: [
@@ -94,7 +93,8 @@ class QuizCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                if (quiz.status.isNotEmpty) _buildBadge("${quiz.status[0].toUpperCase()}${quiz.status.substring(1)}", 16),
+                if (quiz.status.isNotEmpty)
+                  _buildBadge(QuizStatus.labelOf(quiz.status), 16),
                 const SizedBox(height: 4),
                 _buildBadge('${quiz.questions.length} Soal', 12),
               ],
@@ -130,21 +130,8 @@ class QuizCard extends StatelessWidget {
       children: [
         Icon(icon, size: 14, color: AppColors.muted),
         const SizedBox(width: 4),
-        Text(
-          text,
-          style: AppTextStyles.bodyMeta,
-        ),
+        Text(text, style: AppTextStyles.bodyMeta),
       ],
     );
   }
-}
-
-String relativeTime(String raw) {
-  final date = DateTime.tryParse(raw);
-  if (date == null) return raw;
-  final diff = DateTime.now().difference(date.toLocal());
-  if (diff.inDays >= 1) return '${diff.inDays} Hari lalu';
-  if (diff.inHours >= 1) return '${diff.inHours} Jam lalu';
-  if (diff.inMinutes >= 1) return '${diff.inMinutes} Menit lalu';
-  return 'Baru saja';
 }

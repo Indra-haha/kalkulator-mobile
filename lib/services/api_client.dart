@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 class ApiException implements Exception {
@@ -19,13 +18,7 @@ class ApiClient {
 
   // Android emulator memakai 10.0.2.2 untuk mengakses localhost dari host.
   // Untuk device fisik, ganti dengan IP komputer (mis. https://192.168.1.10:8080).
-  static String get baseUrl {
-    if (kIsWeb) return 'https://deera-server.my.id';
-    if (defaultTargetPlatform == TargetPlatform.android) {
-      return 'https://deera-server.my.id';
-    }
-    return 'https://deera-server.my.id';
-  }
+  static const String baseUrl = 'https://deera-server.my.id';
 
   static Map<String, String> headers({String? token, bool body = false}) => {
     if (body) 'Content-Type': 'application/json',

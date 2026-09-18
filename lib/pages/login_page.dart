@@ -204,12 +204,6 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                     ),
-
-                    const Text(
-                      'Silakan login menggunakan NIM (password = NIM)',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
                   ],
                 ),
               ),

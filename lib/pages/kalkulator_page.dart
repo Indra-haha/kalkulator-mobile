@@ -1,16 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../engine/kalkulator_engine.dart';
 import '../theme/app_theme.dart';
 import '../widgets/app_header_bar.dart';
-
-void main() {
-  runApp(
-    const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: KalkulatorPage(),
-    ),
-  );
-}
 
 class KalkulatorPage extends StatefulWidget {
   const KalkulatorPage({super.key});
@@ -26,11 +18,26 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
   String _result = '';
 
   final List<String> _gridButtons = [
-    'C', '⌫', 'G/G', 'Sn',
-    '7', '8', '9', '÷', 
-    '4', '5', '6', '×',
-    '1', '2', '3', '-',
-    '0', '.', ',', '+',
+    'C',
+    '⌫',
+    'G/G',
+    'Sn',
+    '7',
+    '8',
+    '9',
+    '÷',
+    '4',
+    '5',
+    '6',
+    '×',
+    '1',
+    '2',
+    '3',
+    '-',
+    '0',
+    '.',
+    ',',
+    '+',
   ];
 
   @override
@@ -85,7 +92,8 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
         }
 
         final String core = text.trimRight();
-        final bool prevOperator = core.isNotEmpty &&
+        final bool prevOperator =
+            core.isNotEmpty &&
             ['+', '-', '×', '÷'].contains(core[core.length - 1]);
 
         if (value == '-') {
@@ -141,7 +149,8 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
       }
 
       setState(() {
-        _result = '$angka adalah Bilangan ${angka % 2 == 0 ? "GENAP" : "GANJIL"}';
+        _result =
+            '$angka adalah Bilangan ${angka % 2 == 0 ? "GENAP" : "GANJIL"}';
       });
       return;
     }
@@ -304,138 +313,5 @@ class _KalkulatorPageState extends State<KalkulatorPage> {
         ],
       ),
     );
-  }
-}
-
-// ====================================================================
-// Engine Kalkulator OOP untuk Live Evaluasi
-// ====================================================================
-sealed class Expr {
-  const Expr();
-}
-
-class AngkaExpr extends Expr {
-  const AngkaExpr(this.nilai);
-  final double nilai;
-}
-
-class NegExpr extends Expr {
-  const NegExpr(this.target);
-  final Expr target;
-}
-
-class BinerExpr extends Expr {
-  const BinerExpr(this.kiri, this.opr, this.kanan);
-  final Expr kiri;
-  final String opr;
-  final Expr kanan;
-}
-
-class KalkulatorEngine {
-  KalkulatorEngine._();
-
-  static Expr angka(num nilai) => AngkaExpr(nilai.toDouble());
-  static Expr tambah(Expr a, Expr b) => BinerExpr(a, '+', b);
-  static Expr kurang(Expr a, Expr b) => BinerExpr(a, '-', b);
-  static Expr kali(Expr a, Expr b) => BinerExpr(a, '×', b);
-  static Expr bagi(Expr a, Expr b) => BinerExpr(a, '÷', b);
-  static Expr negasi(Expr target) => NegExpr(target);
-
-  static double? hitung(Expr expr) {
-    switch (expr) {
-      case AngkaExpr(:final nilai):
-        return nilai;
-      case NegExpr(:final target):
-        final nilai = hitung(target);
-        return nilai == null ? null : -nilai;
-      case BinerExpr(:final kiri, :final opr, :final kanan):
-        final a = hitung(kiri);
-        final b = hitung(kanan);
-        if (a == null || b == null) return null;
-        switch (opr) {
-          case '+': return a + b;
-          case '-': return a - b;
-          case '×': return a * b;
-          case '÷':
-            if (b == 0) return null;
-            return a / b;
-        }
-        return null;
-    }
-  }
-
-  static Expr? parse(String raw) {
-    List<String> tokens = _tokenize(raw);
-    if (tokens.isEmpty) return null;
-
-    Expr? expr = _tryParse(tokens);
-    if (expr == null && ['+', '-', '×', '÷'].contains(tokens.last)) {
-      tokens = tokens.sublist(0, tokens.length - 1);
-      expr = _tryParse(tokens);
-    }
-    return expr;
-  }
-
-  static List<String> _tokenize(String raw) {
-    return RegExp(r'(\d+[\d,.]*|[+\-×÷])')
-        .allMatches(raw)
-        .map((m) => m.group(1)!)
-        .toList();
-  }
-
-  static Expr? _tryParse(List<String> tokens) {
-    int pos = 0;
-
-    Expr? parseAngka() {
-      if (pos >= tokens.length) return null;
-      final double? nilai = double.tryParse(tokens[pos].replaceAll(',', '.'));
-      if (nilai == null) return null;
-      pos++;
-      return AngkaExpr(nilai);
-    }
-
-    Expr? parseUnary() {
-      if (pos >= tokens.length) return null;
-      final String token = tokens[pos];
-      if (token == '-') {
-        pos++;
-        final Expr? operand = parseUnary();
-        return operand == null ? null : NegExpr(operand);
-      }
-      if (token == '+') return null;
-      return parseAngka();
-    }
-
-    Expr? parseKaliBagi() {
-      final Expr? first = parseUnary();
-      if (first == null) return null;
-      Expr left = first;
-      while (pos < tokens.length &&
-          (tokens[pos] == '×' || tokens[pos] == '÷')) {
-        final String opr = tokens[pos++];
-        final Expr? right = parseUnary();
-        if (right == null) return null;
-        left = BinerExpr(left, opr, right);
-      }
-      return left;
-    }
-
-    Expr? parseTambahKurang() {
-      final Expr? first = parseKaliBagi();
-      if (first == null) return null;
-      Expr left = first;
-      while (pos < tokens.length &&
-          (tokens[pos] == '+' || tokens[pos] == '-')) {
-        final String opr = tokens[pos++];
-        final Expr? right = parseKaliBagi();
-        if (right == null) return null;
-        left = BinerExpr(left, opr, right);
-      }
-      return left;
-    }
-
-    final Expr? expr = parseTambahKurang();
-    if (expr == null || pos != tokens.length) return null;
-    return expr;
   }
 }

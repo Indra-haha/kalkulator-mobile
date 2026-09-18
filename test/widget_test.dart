@@ -2,23 +2,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../lib/main.dart';
+import 'package:numerus/main.dart';
 
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues(<String, Object>{});
   });
 
-  testWidgets('Login page menampilkan field NIM dan password',
-      (WidgetTester tester) async {
+  testWidgets('Login page menampilkan field NIM dan password', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(const KalkulatorApp());
 
-    expect(find.text('Login Aplikasi Kalkulator'), findsOneWidget);
+    expect(find.text('Everything about Numbers'), findsOneWidget);
     expect(find.widgetWithText(ElevatedButton, 'Login'), findsOneWidget);
   });
 
-  testWidgets('Login tanpa input menampilkan pesan error',
-      (WidgetTester tester) async {
+  testWidgets('Login tanpa input menampilkan pesan error', (
+    WidgetTester tester,
+  ) async {
     await tester.pumpWidget(const KalkulatorApp());
 
     await tester.tap(find.byType(ElevatedButton));

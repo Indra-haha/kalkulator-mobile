@@ -3,8 +3,10 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../models/quiz.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/quiz_status.dart';
+import '../../utils/format.dart';
 import '../../widgets/app_header_bar.dart';
-import '../../widgets/quiz_card.dart' show relativeTime;
+import '../../widgets/empty_state_view.dart';
 
 class DetailQuizRoomPage extends StatelessWidget {
   final Quizes quiz;
@@ -12,9 +14,9 @@ class DetailQuizRoomPage extends StatelessWidget {
   const DetailQuizRoomPage({super.key, required this.quiz});
 
   void _showSnack(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   @override
@@ -39,15 +41,18 @@ class DetailQuizRoomPage extends StatelessWidget {
       children: [
         _heroCard(quiz),
         const SizedBox(height: 24),
-        _roomSectionHeader(quiz.rooms.where((room) => room.status != 'waiting').length),
+        _roomSectionHeader(
+          quiz.rooms.where((room) => room.status != 'waiting').length,
+        ),
         const SizedBox(height: 16),
-        if (quiz.rooms.isEmpty || quiz.rooms.every((room) => room.status == 'waiting'))
+        if (quiz.rooms.isEmpty ||
+            quiz.rooms.every((room) => room.status == 'waiting'))
           _emptyRooms()
         else
           for (var i = 0; i < quiz.rooms.length; i++) ...[
             if (i > 0) const SizedBox(height: 16),
             if (quiz.rooms[i].status != 'waiting')
-            _roomCard(context, quiz, quiz.rooms[i], i),
+              _roomCard(context, quiz, quiz.rooms[i], i),
           ],
         const SizedBox(height: 24),
       ],
@@ -81,11 +86,7 @@ class DetailQuizRoomPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                _heroStatusPill(info.color),
-              ],
-            ),
+            Row(children: [_heroStatusPill(info.color)]),
             const SizedBox(height: 16),
             Text(
               quiz.title,
@@ -111,7 +112,7 @@ class DetailQuizRoomPage extends StatelessWidget {
                   Expanded(
                     child: _statTile(
                       icon: Icons.timer_outlined,
-                      value: _formatDuration(_totalDuration(quiz)),
+                      value: formatDuration(totalDuration(quiz)),
                       label: 'Durasi',
                     ),
                   ),
@@ -166,25 +167,6 @@ class DetailQuizRoomPage extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _heroInfoPill(String text) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.20),
-        borderRadius: BorderRadius.circular(9999),
-      ),
-      child: Text(
-        text,
-        style: GoogleFonts.plusJakartaSans(
-          color: Colors.white,
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          height: 1.33,
-        ),
       ),
     );
   }
@@ -362,7 +344,7 @@ class DetailQuizRoomPage extends StatelessWidget {
                     Text('PIN SERVER', style: AppTextStyles.bodyMeta),
                     const SizedBox(height: 2),
                     Text(
-                      _formatKode(room.kode),
+                      formatKode(room.kode),
                       style: GoogleFonts.montserrat(
                         color: AppColors.primary,
                         fontSize: 24,
@@ -408,20 +390,12 @@ class DetailQuizRoomPage extends StatelessWidget {
   }
 
   Widget _emptyRooms() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 32),
-      child: Column(
-        children: [
-          Icon(Icons.meeting_room_outlined, size: 48, color: AppColors.neutral),
-          const SizedBox(height: 12),
-          Text(
-            'Belum ada room untuk kuis ini.',
-            style: GoogleFonts.plusJakartaSans(
-              fontSize: 14,
-              color: AppColors.muted,
-            ),
-          ),
-        ],
+    return const Padding(
+      padding: EdgeInsets.symmetric(vertical: 32),
+      child: EmptyStateView(
+        icon: Icons.meeting_room_outlined,
+        iconColor: AppColors.neutral,
+        message: 'Belum ada room untuk kuis ini.',
       ),
     );
   }
@@ -430,67 +404,50 @@ class DetailQuizRoomPage extends StatelessWidget {
     if (quiz.status.isNotEmpty) return quiz.status;
     const priority = ['in-Game', 'open', 'ended'];
     for (final status in priority) {
-      if (quiz.rooms.any((room) => room.status == status && room.status != 'waiting' ) ) return status;
+      if (quiz.rooms.any(
+        (room) => room.status == status && room.status != 'waiting',
+      )) {
+        return status;
+      }
     }
     return '';
   }
 
   ({String label, Color color, Color bg}) _statusInfo(String status) {
+    return (
+      label: QuizStatus.labelOf(status),
+      color: _statusColor(status),
+      bg: _statusBg(status),
+    );
+  }
+
+  Color _statusColor(String status) {
     switch (status) {
       case 'open':
-        return (
-          label: "${status[0].toUpperCase()}${status.substring(1)}",
-          color: const Color(0xFF6B38D4),
-          bg: const Color(0xFFE9DDFF),
-        );
+        return const Color(0xFF6B38D4);
       case 'in-Game':
-        return (
-          label: "${status[0].toUpperCase()}${status.substring(1)}",
-          color: AppColors.warningDark,
-          bg: AppColors.warningBg,
-        );
+        return AppColors.warningDark;
       case 'ended':
-        return (
-          label: "${status[0].toUpperCase()}${status.substring(1)}",
-          color: AppColors.neutralDark,
-          bg: AppColors.neutralBg,
-        );
+        return AppColors.neutralDark;
       case 'waiting':
-        return (
-          label: "${status[0].toUpperCase()}${status.substring(1)}",
-          color: AppColors.muted,
-          bg: AppColors.softBg,
-        );
+        return AppColors.muted;
       default:
-        return (
-          label: "${status[0].toUpperCase()}${status.substring(1)}",
-          color: AppColors.brandDeep,
-          bg: const Color(0xFFE1E0FF),
-        );
+        return AppColors.brandDeep;
     }
   }
 
-  String _formatKode(String kode) {
-    if (kode.length == 6) {
-      return '${kode.substring(0, 3)} ${kode.substring(3)}';
+  Color _statusBg(String status) {
+    switch (status) {
+      case 'open':
+        return const Color(0xFFE9DDFF);
+      case 'in-Game':
+        return AppColors.warningBg;
+      case 'ended':
+        return AppColors.neutralBg;
+      case 'waiting':
+        return AppColors.softBg;
+      default:
+        return const Color(0xFFE1E0FF);
     }
-    return kode;
-  }
-
-  double _totalDuration(Quizes quiz) {
-    var total = 0.0;
-    for (final q in quiz.questions) {
-      total += q.duration;
-    }
-    return total;
-  }
-
-  String _formatDuration(double totalSeconds) {
-    final total = totalSeconds.round();
-    if (total < 60) return '$total Detik';
-    final m = total ~/ 60;
-    final s = total % 60;
-    if (s == 0) return '$m Menit';
-    return '$m Menit $s Detik';
   }
 }

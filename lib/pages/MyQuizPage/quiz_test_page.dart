@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import '../../models/quiz.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/quiz_option_theme.dart';
 // Import file engine kalkulator kamu di sini (sesuaikan path foldernya)
-import '../kalkulasi.dart'; 
+import '../../engine/kalkulator_engine.dart';
 
 class QuizTestPage extends StatefulWidget {
   final Quizes quiz;
@@ -17,7 +17,7 @@ class QuizTestPage extends StatefulWidget {
 class _QuizTestPageState extends State<QuizTestPage> {
   int _currentIndex = 0;
   int _totalScore = 0;
-  
+
   Timer? _timer;
   int _timeLeft = 0;
   double _maxDuration = 12.0;
@@ -27,39 +27,8 @@ class _QuizTestPageState extends State<QuizTestPage> {
 
   int? _selectedAnswerIndex;
   bool _isAnswered = false;
-  bool? _isUserCorrect; 
+  bool? _isUserCorrect;
   int _gainedScore = 0;
-
-  final List<Map<String, dynamic>> _optionThemes = [
-    {
-      'bgColor': const Color(0xFFFFDAD6),
-      'borderColor': const Color(0xFF93000A),
-      'iconColor': const Color(0xFFBA1A1A),
-      'textColor': const Color(0xFF93000A),
-      'label': 'A',
-    },
-    {
-      'bgColor': const Color(0xFFDBE1FF),
-      'borderColor': const Color(0xFF001453),
-      'iconColor': const Color(0xFF4648D4),
-      'textColor': const Color(0xFF001453),
-      'label': 'B',
-    },
-    {
-      'bgColor': const Color(0xFFFFF9C4),
-      'borderColor': const Color(0xFF825100),
-      'iconColor': const Color(0xFFA36700),
-      'textColor': const Color(0xFF825100),
-      'label': 'C',
-    },
-    {
-      'bgColor': const Color(0xFFC8E6C9),
-      'borderColor': const Color(0xFF1B5E20),
-      'iconColor': const Color(0xFF2E7D32),
-      'textColor': const Color(0xFF1B5E20),
-      'label': 'D',
-    },
-  ];
 
   @override
   void initState() {
@@ -76,14 +45,16 @@ class _QuizTestPageState extends State<QuizTestPage> {
 
   void _initQuestionSession() {
     if (widget.quiz.questions.isEmpty) return;
-    
+
     final currentQuestion = widget.quiz.questions[_currentIndex];
-    _maxDuration = currentQuestion.duration > 0 ? currentQuestion.duration : 12.0;
+    _maxDuration = currentQuestion.duration > 0
+        ? currentQuestion.duration
+        : 12.0;
     _timeLeft = _maxDuration.toInt();
-    
+
     _stopwatch.reset();
     _stopwatch.start();
-    
+
     _startTimer();
   }
 
@@ -108,7 +79,7 @@ class _QuizTestPageState extends State<QuizTestPage> {
     _stopwatch.stop();
 
     final currentQuestion = widget.quiz.questions[_currentIndex];
-    
+
     const int correctIndex = 0; // Kunci jawaban testing lokal (Index 0)
     bool isBenar = (selectedIndex == correctIndex);
     int bobotMaks = currentQuestion.skor > 0 ? currentQuestion.skor : 50;
@@ -190,12 +161,12 @@ class _QuizTestPageState extends State<QuizTestPage> {
 
     final currentQuestion = widget.quiz.questions[_currentIndex];
     final totalQuestions = widget.quiz.questions.length;
-    final int currentQuestionSkor = currentQuestion.skor > 0 ? currentQuestion.skor : 50;
+    final int currentQuestionSkor = currentQuestion.skor > 0
+        ? currentQuestion.skor
+        : 50;
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Testing (Modular Engine)"),
-      ),
+      appBar: AppBar(title: const Text("Testing (Modular Engine)")),
       body: SingleChildScrollView(
         child: Container(
           width: double.infinity,
@@ -228,7 +199,10 @@ class _QuizTestPageState extends State<QuizTestPage> {
                         ),
                         const SizedBox(height: 4),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 4,
+                          ),
                           decoration: ShapeDecoration(
                             color: const Color(0xFFE7EEFF),
                             shape: RoundedRectangleBorder(
@@ -280,7 +254,7 @@ class _QuizTestPageState extends State<QuizTestPage> {
                         ),
                       ],
                     ),
-                    
+
                     // Samping _totalScore: Tampilkan Bobot Maksimal Soal & Kotak Skor Akumulasi
                     Row(
                       children: [
@@ -316,7 +290,7 @@ class _QuizTestPageState extends State<QuizTestPage> {
                                 blurRadius: 2,
                                 offset: Offset(0, 1),
                                 spreadRadius: 0,
-                              )
+                              ),
                             ],
                             borderRadius: BorderRadius.circular(8),
                           ),
@@ -338,7 +312,7 @@ class _QuizTestPageState extends State<QuizTestPage> {
                   ],
                 ),
               ),
-              
+
               // Bagian Timer Hitung Mundur (Detik)
               Container(
                 width: double.infinity,
@@ -353,7 +327,9 @@ class _QuizTestPageState extends State<QuizTestPage> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: _timeLeft <= 3 ? Colors.red : const Color(0xFF4648D4),
+                          color: _timeLeft <= 3
+                              ? Colors.red
+                              : const Color(0xFF4648D4),
                           width: 4,
                         ),
                       ),
@@ -363,7 +339,9 @@ class _QuizTestPageState extends State<QuizTestPage> {
                           Text(
                             '$_timeLeft',
                             style: TextStyle(
-                              color: _timeLeft <= 3 ? Colors.red : const Color(0xFF111C2D),
+                              color: _timeLeft <= 3
+                                  ? Colors.red
+                                  : const Color(0xFF111C2D),
                               fontSize: 28,
                               fontFamily: 'Montserrat',
                               fontWeight: FontWeight.w800,
@@ -403,7 +381,7 @@ class _QuizTestPageState extends State<QuizTestPage> {
                       blurRadius: 20,
                       offset: Offset(0, 8),
                       spreadRadius: 0,
-                    )
+                    ),
                   ],
                 ),
                 child: Center(
@@ -429,23 +407,32 @@ class _QuizTestPageState extends State<QuizTestPage> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: List.generate(currentQuestion.options.length, (index) {
-                    final themeIndex = index % _optionThemes.length;
-                    final theme = _optionThemes[themeIndex];
+                  children: List.generate(currentQuestion.options.length, (
+                    index,
+                  ) {
+                    final themeIndex = index % optionThemes.length;
+                    final theme = optionThemes[themeIndex];
 
-                    Color currentBgColor = theme['bgColor'];
+                    Color currentBgColor = theme.bg;
                     const int correctIndex = 0; // Kunci jawaban benar
 
                     if (_isAnswered) {
                       if (index == correctIndex) {
-                        currentBgColor = const Color(0xFFC8E6C9); // Hijau (Benar)
+                        currentBgColor = const Color(
+                          0xFFC8E6C9,
+                        ); // Hijau (Benar)
                       } else if (index == _selectedAnswerIndex) {
-                        currentBgColor = const Color(0xFFFFDAD6); // Merah (Salah pilih)
+                        currentBgColor = const Color(
+                          0xFFFFDAD6,
+                        ); // Merah (Salah pilih)
                       } else {
-                        currentBgColor = theme['bgColor'].withValues(alpha: 0.4);
+                        currentBgColor = theme.bg.withValues(alpha: 0.4);
                       }
                     } else if (_selectedAnswerIndex == index) {
-                      currentBgColor = Color.alphaBlend(Colors.black.withValues(alpha: 0.15), theme['bgColor']);
+                      currentBgColor = Color.alphaBlend(
+                        Colors.black.withValues(alpha: 0.15),
+                        theme.bg,
+                      );
                     }
 
                     return Padding(
@@ -458,10 +445,7 @@ class _QuizTestPageState extends State<QuizTestPage> {
                           decoration: ShapeDecoration(
                             color: currentBgColor,
                             shape: RoundedRectangleBorder(
-                              side: BorderSide(
-                                width: 4,
-                                color: theme['borderColor'],
-                              ),
+                              side: BorderSide(width: 4, color: theme.border),
                               borderRadius: BorderRadius.circular(32),
                             ),
                           ),
@@ -474,14 +458,14 @@ class _QuizTestPageState extends State<QuizTestPage> {
                                   width: 48,
                                   height: 48,
                                   decoration: ShapeDecoration(
-                                    color: theme['iconColor'],
+                                    color: theme.dot,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(32),
                                     ),
                                   ),
                                   child: Center(
                                     child: Text(
-                                      theme['label'],
+                                      String.fromCharCode(65 + themeIndex),
                                       style: const TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
@@ -505,7 +489,7 @@ class _QuizTestPageState extends State<QuizTestPage> {
                                   child: Text(
                                     currentQuestion.options[index],
                                     style: TextStyle(
-                                      color: theme['textColor'],
+                                      color: theme.border,
                                       fontSize: 16,
                                       fontFamily: 'Plus Jakarta Sans',
                                       fontWeight: FontWeight.w600,
@@ -529,12 +513,19 @@ class _QuizTestPageState extends State<QuizTestPage> {
                 const SizedBox(height: 8),
                 Container(
                   width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 16),
+                  padding: const EdgeInsets.symmetric(
+                    vertical: 14,
+                    horizontal: 16,
+                  ),
                   decoration: BoxDecoration(
-                    color: _isUserCorrect! ? const Color(0xFFC8E6C9) : const Color(0xFFFFDAD6),
+                    color: _isUserCorrect!
+                        ? const Color(0xFFC8E6C9)
+                        : const Color(0xFFFFDAD6),
                     borderRadius: BorderRadius.circular(16),
                     border: Border.all(
-                      color: _isUserCorrect! ? const Color(0xFF1B5E20) : const Color(0xFF93000A),
+                      color: _isUserCorrect!
+                          ? const Color(0xFF1B5E20)
+                          : const Color(0xFF93000A),
                       width: 2,
                     ),
                   ),
@@ -543,15 +534,19 @@ class _QuizTestPageState extends State<QuizTestPage> {
                     children: [
                       Icon(
                         _isUserCorrect! ? Icons.check_circle : Icons.cancel,
-                        color: _isUserCorrect! ? const Color(0xFF1B5E20) : const Color(0xFF93000A),
+                        color: _isUserCorrect!
+                            ? const Color(0xFF1B5E20)
+                            : const Color(0xFF93000A),
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        _isUserCorrect! 
-                            ? 'Kamu Benar! (+$_gainedScore Poin)' 
+                        _isUserCorrect!
+                            ? 'Kamu Benar! (+$_gainedScore Poin)'
                             : 'Kamu Salah! (+0 Poin)',
                         style: TextStyle(
-                          color: _isUserCorrect! ? const Color(0xFF1B5E20) : const Color(0xFF93000A),
+                          color: _isUserCorrect!
+                              ? const Color(0xFF1B5E20)
+                              : const Color(0xFF93000A),
                           fontSize: 16,
                           fontFamily: 'Montserrat',
                           fontWeight: FontWeight.bold,
