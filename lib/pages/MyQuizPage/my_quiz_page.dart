@@ -197,7 +197,14 @@ class _MyQuizPageState extends State<MyQuizPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF9F9FF),
-      appBar: const AppHeaderBar(title: 'Quiz Saya'),
+      appBar: AppHeaderBar(
+        title: 'Quiz Saya', 
+        leading: IconButton(
+          tooltip: 'Kembali',
+          onPressed: () => Navigator.of(context).pop(),
+          icon: const Icon(Icons.arrow_back),
+        ),
+      ),
       body: _buildBody(),
       floatingActionButton: AppPillButton(
         label: 'Create Room',

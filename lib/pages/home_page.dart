@@ -15,6 +15,7 @@ import '../widgets/section_header.dart';
 import 'MyQuizPage/create_quiz_page.dart';
 import 'MyQuizPage/my_quiz_page.dart';
 import 'MyQuizPage/detail_room_page.dart';
+import 'QuizPage/detail_quiz_room_page.dart' show DetailQuizRoomPage;
 import 'login_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -118,15 +119,10 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Future<void> _openRooms(Quizes quiz) async {
-    await QuizCacheService.instance.saveMyQuizzes(_myQuizzes);
-    if (!mounted) return;
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => RoomsPage(quizId: quiz.id),
-        settings: const RouteSettings(name: 'rooms'),
-      ),
-    );
+  void _openRooms(Quizes quiz) {
+    Navigator.of(
+      context,
+    ).push(MaterialPageRoute(builder: (_) => DetailQuizRoomPage(quiz: quiz)));
   }
 
   void _openAll() {

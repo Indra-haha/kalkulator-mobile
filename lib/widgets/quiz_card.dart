@@ -94,7 +94,7 @@ class QuizCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
-                if (quiz.status.isNotEmpty) _buildBadge(quiz.status, 16),
+                if (quiz.status.isNotEmpty) _buildBadge("${quiz.status[0].toUpperCase()}${quiz.status.substring(1)}", 16),
                 const SizedBox(height: 4),
                 _buildBadge('${quiz.questions.length} Soal', 12),
               ],

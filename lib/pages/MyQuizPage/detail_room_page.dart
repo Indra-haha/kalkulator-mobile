@@ -431,13 +431,11 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
       backgroundColor: AppColors.cardBg,
       appBar: AppHeaderBar(
         title: title == null || title.isEmpty ? 'Detail Room' : title,
-        actions: [
-          IconButton(
-            tooltip: 'Refresh',
-            onPressed: _loading || _publishing ? null : _load,
-            icon: const Icon(Icons.refresh),
-          ),
-        ],
+        leading: IconButton(
+          tooltip: 'Kembali',
+          onPressed: () => Navigator.of(context).pop(),
+          icon: const Icon(Icons.arrow_back),
+        ),
       ),
       body: _buildBody(),
     );

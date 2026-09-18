@@ -22,7 +22,7 @@ class DetailQuizRoomPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppColors.cardBg,
       appBar: AppHeaderBar(
-        title: 'Detail Kuis',
+        title: 'Detail Quiz',
         leading: IconButton(
           tooltip: 'Kembali',
           onPressed: () => Navigator.of(context).pop(),
@@ -41,7 +41,7 @@ class DetailQuizRoomPage extends StatelessWidget {
         const SizedBox(height: 24),
         _roomSectionHeader(quiz.rooms.length),
         const SizedBox(height: 16),
-        if (quiz.rooms.isEmpty)
+        if (quiz.rooms.isEmpty || quiz.rooms.every((room) => room.status == 'waiting'))
           _emptyRooms()
         else
           for (var i = 0; i < quiz.rooms.length; i++) ...[
@@ -159,7 +159,7 @@ class DetailQuizRoomPage extends StatelessWidget {
           ),
           const SizedBox(width: 4),
           Text(
-            'Aktif & Terbuka',
+            _statusInfo(_quizStatus(quiz)).label,
             style: GoogleFonts.plusJakartaSans(
               color: AppColors.primary,
               fontSize: 12,
@@ -450,26 +450,31 @@ class DetailQuizRoomPage extends StatelessWidget {
     switch (status) {
       case 'open':
         return (
-          label: 'Terbuka untuk Umum',
+          label: "${status[0].toUpperCase()}${status.substring(1)}",
           color: const Color(0xFF6B38D4),
           bg: const Color(0xFFE9DDFF),
         );
       case 'in-Game':
         return (
-          label: 'Sedang Berlangsung',
+          label: "${status[0].toUpperCase()}${status.substring(1)}",
           color: AppColors.warningDark,
           bg: AppColors.warningBg,
         );
       case 'ended':
         return (
-          label: 'Selesai',
+          label: "${status[0].toUpperCase()}${status.substring(1)}",
           color: AppColors.neutralDark,
           bg: AppColors.neutralBg,
         );
       case 'waiting':
+        return (
+          label: "${status[0].toUpperCase()}${status.substring(1)}",
+          color: AppColors.muted,
+          bg: AppColors.softBg,
+        );
       default:
         return (
-          label: status,
+          label: "${status[0].toUpperCase()}${status.substring(1)}",
           color: AppColors.brandDeep,
           bg: const Color(0xFFE1E0FF),
         );
