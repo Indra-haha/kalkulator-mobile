@@ -39,7 +39,7 @@ class DetailQuizRoomPage extends StatelessWidget {
       children: [
         _heroCard(quiz),
         const SizedBox(height: 24),
-        _roomSectionHeader(quiz.rooms.length),
+        _roomSectionHeader(quiz.rooms.where((room) => room.status != 'waiting').length),
         const SizedBox(height: 16),
         if (quiz.rooms.isEmpty || quiz.rooms.every((room) => room.status == 'waiting'))
           _emptyRooms()
@@ -84,8 +84,6 @@ class DetailQuizRoomPage extends StatelessWidget {
             Row(
               children: [
                 _heroStatusPill(info.color),
-                const Spacer(),
-                _heroInfoPill('${quiz.rooms.length} Room'),
               ],
             ),
             const SizedBox(height: 16),
@@ -324,15 +322,6 @@ class DetailQuizRoomPage extends StatelessWidget {
                     height: 1.33,
                   ),
                 ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.softBg,
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Text('Room ${index + 1}', style: AppTextStyles.bodyMeta),
               ),
             ],
           ),
