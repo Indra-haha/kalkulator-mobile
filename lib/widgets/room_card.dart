@@ -17,7 +17,7 @@ class RoomCard extends StatelessWidget {
     required this.quiz,
     required this.room,
     this.onTap,
-    this.onTestPressed,
+    this.onTestPressed ,
   });
 
   @override
@@ -83,9 +83,10 @@ class RoomCard extends StatelessWidget {
               ),
             ],
           ),
-          
-          const SizedBox(height: 16),
+          if(room.status == "waiting") ...[
+            const SizedBox(height: 16),
 
+            const SizedBox(height: 16),
           // Bagian Bawah (Tombol Test di Kiri dan Tombol Check di Kanan)
           Container(
             width: double.infinity,
@@ -158,6 +159,8 @@ class RoomCard extends StatelessWidget {
               ],
             ),
           ),
+          ],
+          
         ],
       ),
     );
