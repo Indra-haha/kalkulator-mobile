@@ -11,6 +11,7 @@ import '../theme/app_theme.dart';
 import '../utils/format.dart';
 import '../widgets/app_header_bar.dart';
 import '../widgets/app_pill_button.dart';
+import '../widgets/app_snackbar.dart';
 import '../widgets/empty_state_view.dart';
 import '../widgets/error_state_view.dart';
 import '../widgets/quiz_card.dart';
@@ -166,9 +167,7 @@ class _HomePageState extends State<HomePage> {
 
     await _loadData();
     if (!mounted) return;
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Quiz berhasil dibuat.')));
+    AppSnackBar.success(context, 'Quiz berhasil dibuat.');
     Navigator.of(
       context,
     ).push(MaterialPageRoute(builder: (_) => MyQuizPage(data: _myQuizzes)));

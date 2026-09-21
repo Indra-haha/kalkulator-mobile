@@ -6,6 +6,9 @@ import '../services/api_client.dart';
 import '../services/auth_service.dart';
 import '../services/session_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_loading_indicator.dart';
+import '../widgets/app_snackbar.dart';
+import '../components/app_text_field.dart';
 import 'button.dart';
 import 'regis_page.dart';
 
@@ -53,7 +56,7 @@ class _LoginPageState extends State<LoginPage> {
     final String password = _passwordController.text;
 
     if (nim.isEmpty || password.isEmpty) {
-      _showError('NIM dan password wajib diisi');
+      AppSnackBar.error(context, 'NIM dan password wajib diisi');
       return;
     }
 
@@ -69,21 +72,14 @@ class _LoginPageState extends State<LoginPage> {
         MaterialPageRoute(builder: (_) => MainShell(user: result.user)),
       );
     } on TimeoutException {
-      _showError('Server tidak merespons. Pastikan backend berjalan.');
+      AppSnackBar.error(context, 'Server tidak merespons. Pastikan backend berjalan.');
     } on ApiException catch (e) {
-      _showError(e.message);
+      AppSnackBar.error(context, e.message);
     } catch (_) {
-      _showError('Tidak dapat terhubung ke server.');
+      AppSnackBar.error(context, 'Tidak dapat terhubung ke server.');
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
-  }
-
-  void _showError(String message) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
-    );
   }
 
   @override
@@ -130,37 +126,31 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    TextField(
+                    AppTextField(
                       controller: _nimController,
+                      label: 'NIM',
+                      icon: Icons.person_outline,
                       enabled: !_isLoading,
-                      decoration: const InputDecoration(
-                        labelText: 'NIM',
-                        prefixIcon: Icon(Icons.person_outline),
-                        border: OutlineInputBorder(),
-                      ),
                     ),
                     const SizedBox(height: 16),
-                    TextField(
+                    AppTextField(
                       controller: _passwordController,
+                      label: 'Password',
+                      icon: Icons.lock_outline,
                       obscureText: _obscurePassword,
                       enabled: !_isLoading,
                       onSubmitted: (_) => _login(),
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        prefixIcon: const Icon(Icons.lock_outline),
-                        border: const OutlineInputBorder(),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscurePassword
-                                ? Icons.visibility_off
-                                : Icons.visibility,
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _obscurePassword = !_obscurePassword;
-                            });
-                          },
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _obscurePassword
+                              ? Icons.visibility_off
+                              : Icons.visibility,
                         ),
+                        onPressed: () {
+                          setState(() {
+                            _obscurePassword = !_obscurePassword;
+                          });
+                        },
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -178,10 +168,7 @@ class _LoginPageState extends State<LoginPage> {
                           ? const SizedBox(
                               width: 22,
                               height: 22,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
+                              child: AppLoadingIndicator(),
                             )
                           : const Text('Login'),
                     ),

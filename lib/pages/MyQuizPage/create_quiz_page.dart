@@ -8,6 +8,7 @@ import '../../services/session_service.dart';
 import '../../theme/app_theme.dart';
 import '../../theme/quiz_option_theme.dart';
 import '../../widgets/app_header_bar.dart';
+import '../../widgets/app_snackbar.dart';
 
 const _fieldBg = Color(0xFFF0F3FF);
 const _placeholder = Color(0xFF6B7280);
@@ -67,12 +68,6 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
     setState(() => _questions.removeAt(index).dispose());
   }
 
-  void _showMessage(String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
-  }
-
   String? _validate() {
     if (_titleController.text.trim().isEmpty) {
       return 'Judul quiz wajib diisi.';
@@ -104,7 +99,7 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
   Future<void> _save() async {
     final error = _validate();
     if (error != null) {
-      _showMessage(error);
+      AppSnackBar.error(context, error);
       return;
     }
 
@@ -114,7 +109,7 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
     if (token == null) {
       if (!mounted) return;
       setState(() => _saving = false);
-      _showMessage('Sesi login berakhir. Silakan login kembali.');
+      AppSnackBar.error(context, 'Sesi login berakhir. Silakan login kembali.');
       return;
     }
 
@@ -142,11 +137,11 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
     } on ApiException catch (e) {
       if (!mounted) return;
       setState(() => _saving = false);
-      _showMessage(e.message);
+      AppSnackBar.error(context, e.message);
     } catch (e) {
       if (!mounted) return;
       setState(() => _saving = false);
-      _showMessage('Tidak dapat terhubung ke server. ($e)');
+      AppSnackBar.error(context, 'Tidak dapat terhubung ke server. ($e)');
     }
   }
 

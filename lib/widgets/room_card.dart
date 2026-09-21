@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../models/quiz.dart';
 import '../theme/app_theme.dart';
+import 'app_snackbar.dart';
 
 class RoomCard extends StatelessWidget {
   final Quizes quiz;
@@ -78,8 +79,7 @@ class RoomCard extends StatelessWidget {
               ),
             ],
           ),
-          if (room.status == "waiting") ...[
-            const SizedBox(height: 16),
+          const SizedBox(height: 16),
 
             // Bagian Bawah (Tombol Test di Kiri dan Tombol Check di Kanan)
             Container(
@@ -164,7 +164,6 @@ class RoomCard extends StatelessWidget {
                 ],
               ),
             ),
-          ],
         ],
       ),
     );
@@ -196,11 +195,10 @@ class RoomCard extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         Clipboard.setData(ClipboardData(text: room.kode));
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Kode room disalin.'),
-            duration: Duration(seconds: 1),
-          ),
+        AppSnackBar.show(
+          context,
+          'Kode room disalin.',
+          duration: const Duration(seconds: 1),
         );
       },
       child: Container(

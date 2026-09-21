@@ -13,6 +13,7 @@ import '../../theme/quiz_status.dart';
 import '../../utils/format.dart';
 import '../../widgets/app_header_bar.dart';
 import '../../widgets/app_pill_button.dart';
+import '../../widgets/app_snackbar.dart';
 import '../../widgets/empty_state_view.dart';
 import '../../widgets/quarantine_card.dart';
 import '../../widgets/room_card.dart';
@@ -59,9 +60,7 @@ class _MyQuizPageState extends State<MyQuizPage> {
     );
     if (mounted && result != null) {
       setState(() => _selectedStatus = result.previous);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Status room menjadi "${result.next}".')),
-      );
+      AppSnackBar.show(context, 'Status room menjadi ${result.next}.');
       await _refresh();
     }
   }
@@ -74,9 +73,7 @@ class _MyQuizPageState extends State<MyQuizPage> {
     );
     if (mounted && result != null) {
       setState(() => _selectedStatus = result.previous);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Status room menjadi "${result.next}".')),
-      );
+      AppSnackBar.show(context, 'Status room menjadi ${result.next}.');
     }
   }
 
@@ -88,9 +85,7 @@ class _MyQuizPageState extends State<MyQuizPage> {
     );
     if (mounted && result != null) {
       setState(() => _selectedStatus = result.previous);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Status room menjadi "${result.next}".')),
-      );
+      AppSnackBar.show(context, 'Status room menjadi ${result.next}.');
     }
     if (mounted) await _refresh();
   }
@@ -132,11 +127,10 @@ class _MyQuizPageState extends State<MyQuizPage> {
             TextButton.icon(
               onPressed: () {
                 Clipboard.setData(ClipboardData(text: room.kode));
-                ScaffoldMessenger.of(dialogContext).showSnackBar(
-                  const SnackBar(
-                    content: Text('Kode room disalin.'),
-                    duration: Duration(seconds: 1),
-                  ),
+                AppSnackBar.show(
+                  dialogContext,
+                  'Kode room disalin.',
+                  duration: const Duration(seconds: 1),
                 );
               },
               icon: const Icon(Icons.copy, size: 16),
@@ -172,15 +166,11 @@ class _MyQuizPageState extends State<MyQuizPage> {
         return;
       }
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(e.message)));
+      AppSnackBar.error(context, e.message);
     } catch (e) {
       debugPrint('MyQuiz reload error: $e');
       if (!mounted) return;
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Gagal memuat ulang data.')));
+      AppSnackBar.error(context, 'Gagal memuat ulang data.');
     }
   }
 

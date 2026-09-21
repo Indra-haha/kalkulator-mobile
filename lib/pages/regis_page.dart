@@ -4,6 +4,9 @@ import 'package:flutter/material.dart';
 import '../services/api_client.dart';
 import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_loading_indicator.dart';
+import '../widgets/app_snackbar.dart';
+import '../components/app_text_field.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -58,7 +61,9 @@ class _RegisterPageState extends State<RegisterPage> {
     final nama = _namaController.text.trim();
     final nim = _nimController.text.trim();
     final kelas = _kelasController.text.trim();
-    final tanggalLahir = _formatTanggalLahir(_tanggalLahirController.text.trim());
+    final tanggalLahir = _formatTanggalLahir(
+      _tanggalLahirController.text.trim(),
+    );
     final password = _passwordController.text;
     final confirmPassword = _confirmPasswordController.text;
 
@@ -68,12 +73,12 @@ class _RegisterPageState extends State<RegisterPage> {
         tanggalLahir.isEmpty ||
         password.isEmpty ||
         confirmPassword.isEmpty) {
-      _showMessage("Semua field wajib diisi", Colors.red);
+      AppSnackBar.error(context, "Semua field wajib diisi");
       return;
     }
 
     if (password != confirmPassword) {
-      _showMessage("Password tidak cocok", Colors.red);
+      AppSnackBar.error(context, "Password tidak cocok");
       return;
     }
 
@@ -87,32 +92,26 @@ class _RegisterPageState extends State<RegisterPage> {
         password: password,
       );
       if (!mounted) return;
-      _showMessage(
+      AppSnackBar.success(
+        context,
         'Registrasi berhasil, a/n ${user.nama} (NIM ${user.nim})',
-        Colors.green,
       );
-      Future.delayed(
-        const Duration(seconds: 1),
-        () {
-          if (!mounted) return;
-          Navigator.pop(context);
-        },
-      );
+      Future.delayed(const Duration(seconds: 1), () {
+        if (!mounted) return;
+        Navigator.pop(context);
+      });
     } on TimeoutException {
-      _showMessage("Server tidak merespons. Pastikan backend berjalan.", Colors.red);
+      AppSnackBar.error(
+        context,
+        "Server tidak merespons. Pastikan backend berjalan.",
+      );
     } on ApiException catch (e) {
-      _showMessage(e.message, Colors.red);
+      AppSnackBar.error(context, e.message);
     } catch (_) {
-      _showMessage("Tidak dapat terhubung ke server.", Colors.red);
+      AppSnackBar.error(context, "Tidak dapat terhubung ke server.");
     } finally {
       if (mounted) setState(() => _isLoading = false);
     }
-  }
-
-  void _showMessage(String message, Color color) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message), backgroundColor: color));
   }
 
   @override
@@ -124,31 +123,6 @@ class _RegisterPageState extends State<RegisterPage> {
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
-  }
-
-  Widget _buildTextField({
-    required TextEditingController controller,
-    required String label,
-    required IconData icon,
-    bool obscureText = false,
-    Widget? suffixIcon,
-    TextInputType keyboardType = TextInputType.text,
-    bool readOnly = false,
-    VoidCallback? onTap,
-  }) {
-    return TextField(
-      controller: controller,
-      keyboardType: keyboardType,
-      obscureText: obscureText,
-      readOnly: readOnly,
-      onTap: onTap,
-      decoration: InputDecoration(
-        labelText: label,
-        prefixIcon: Icon(icon),
-        border: const OutlineInputBorder(),
-        suffixIcon: suffixIcon,
-      ),
-    );
   }
 
   @override
@@ -189,7 +163,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                     const SizedBox(height: 25),
 
-                    _buildTextField(
+                    AppTextField(
                       controller: _namaController,
                       label: 'Nama Lengkap',
                       icon: Icons.person,
@@ -197,7 +171,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                     const SizedBox(height: 16),
 
-                    _buildTextField(
+                    AppTextField(
                       controller: _nimController,
                       label: 'NIM',
                       icon: Icons.badge,
@@ -206,7 +180,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                     const SizedBox(height: 16),
 
-                    _buildTextField(
+                    AppTextField(
                       controller: _kelasController,
                       label: 'Kelas',
                       icon: Icons.class_,
@@ -214,7 +188,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                     const SizedBox(height: 16),
 
-                    _buildTextField(
+                    AppTextField(
                       controller: _tanggalLahirController,
                       label: 'Tanggal Lahir',
                       icon: Icons.calendar_month,
@@ -224,7 +198,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                     const SizedBox(height: 16),
 
-                    _buildTextField(
+                    AppTextField(
                       controller: _passwordController,
                       label: 'Password',
                       icon: Icons.lock,
@@ -245,7 +219,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                     const SizedBox(height: 16),
 
-                    _buildTextField(
+                    AppTextField(
                       controller: _confirmPasswordController,
                       label: 'Konfirmasi Password',
                       icon: Icons.lock_reset,
@@ -280,10 +254,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           ? const SizedBox(
                               width: 22,
                               height: 22,
-                              child: CircularProgressIndicator(
-                                color: Colors.white,
-                                strokeWidth: 2,
-                              ),
+                              child: AppLoadingIndicator(),
                             )
                           : const Text(
                               'Daftar',

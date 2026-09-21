@@ -6,18 +6,13 @@ import '../../theme/app_theme.dart';
 import '../../theme/quiz_status.dart';
 import '../../utils/format.dart';
 import '../../widgets/app_header_bar.dart';
+import '../../widgets/app_snackbar.dart';
 import '../../widgets/empty_state_view.dart';
 
 class DetailQuizRoomPage extends StatelessWidget {
   final Quizes quiz;
 
   const DetailQuizRoomPage({super.key, required this.quiz});
-
-  void _showSnack(BuildContext context, String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -360,7 +355,7 @@ class DetailQuizRoomPage extends StatelessWidget {
                   SizedBox(
                     height: 44,
                     child: FilledButton(
-                      onPressed: () => _showSnack(
+                      onPressed: () => AppSnackBar.show(
                         context,
                         'Join Room ${room.kode} — fitur join menyusul.',
                       ),

@@ -12,6 +12,7 @@ import '../../theme/quiz_option_theme.dart';
 import '../../theme/quiz_status.dart';
 import '../../utils/format.dart';
 import '../../widgets/app_header_bar.dart';
+import '../../widgets/app_snackbar.dart';
 import '../../widgets/empty_state_view.dart';
 import '../../widgets/error_state_view.dart';
 import '../../widgets/section_header.dart';
@@ -369,16 +370,12 @@ class _RoomDetailPageState extends State<RoomDetailPage> {
       }
       if (!mounted) return;
       setState(() => _publishing = false);
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(e.message)));
+      AppSnackBar.error(context, e.message);
     } catch (e) {
       debugPrint('Publish error: $e');
       if (!mounted) return;
       setState(() => _publishing = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Gagal mengubah status room.')),
-      );
+      AppSnackBar.error(context, 'Gagal mengubah status room.');
     }
   }
 
