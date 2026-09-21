@@ -18,9 +18,8 @@ import 'detail_quiz_room_page.dart';
 
 class QuizPage extends StatefulWidget {
   final Map<String, dynamic>? user;
-  final int? userId;
 
-  const QuizPage({super.key, this.user, this.userId});
+  const QuizPage({super.key, this.user});
 
   @override
   State<QuizPage> createState() => _QuizPageState();

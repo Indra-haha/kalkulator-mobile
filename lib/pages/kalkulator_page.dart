@@ -8,10 +8,10 @@ class KalkulatorPage extends StatefulWidget {
   const KalkulatorPage({super.key});
 
   @override
-  State<KalkulatorPage> createState() => _KalkulatorPageState();
+  State<KalkulatorPage> createState() => KalkulatorPageState();
 }
 
-class _KalkulatorPageState extends State<KalkulatorPage> {
+class KalkulatorPageState extends State<KalkulatorPage> {
   final TextEditingController _displayController = TextEditingController();
 
   late String _operation;

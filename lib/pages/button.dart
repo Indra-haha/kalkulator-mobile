@@ -21,18 +21,13 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
-   final pages = [
-  HomePage(user: widget.user),
-  QuizPage(
-    user: widget.user,
-    userId: widget.user?['id'] == null
-        ? null
-        : int.tryParse('${widget.user?['id']}'),
-  ),
-  const KalkulatorPage(),
-  const KonversiPage(),
-  const HelpPage(),
-];
+    final pages = [
+      HomePage(user: widget.user),
+      QuizPage(user: widget.user),
+      KalkulatorPage(),
+      KonversiPage(),
+      HelpPage(),
+    ];
     return Scaffold(
       body: IndexedStack(index: _index, children: pages),
       bottomNavigationBar: BottomNavigationBar(
@@ -41,28 +36,13 @@ class _MainShellState extends State<MainShell> {
         selectedItemColor: AppColors.primary,
         unselectedItemColor: Colors.grey,
         onTap: (i) => setState(() => _index = i),
-       items: const [
-  BottomNavigationBarItem(
-    icon: Icon(Icons.home),
-    label: 'Home',
-  ),
-  BottomNavigationBarItem(
-    icon: Icon(Icons.quiz),
-    label: 'Quiz',
-  ),
-  BottomNavigationBarItem(
-    icon: Icon(Icons.calculate),
-    label: 'Kalkulator',
-  ),
-  BottomNavigationBarItem(
-    icon: Icon(Icons.swap_horiz),
-    label: 'Konversi',
-  ),
-  BottomNavigationBarItem(
-    icon: Icon(Icons.help_outline),
-    label: 'Bantuan',
-  ),
-],
+        items: const [
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.quiz), label: 'Quiz'),
+          BottomNavigationBarItem(icon: Icon(Icons.calculate), label: 'Kalkulator'),
+          BottomNavigationBarItem(icon: Icon(Icons.swap_horiz), label: 'Konversi'),
+          BottomNavigationBarItem(icon: Icon(Icons.help_outline), label: 'Bantuan'),
+        ],
       ),
     );
   }
