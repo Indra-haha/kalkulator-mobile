@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:numerus/utils/format.dart';
 import '../services/api_client.dart';
 import '../services/auth_service.dart';
 import '../theme/app_theme.dart';
@@ -44,24 +45,14 @@ class _RegisterPageState extends State<RegisterPage> {
     }
   }
 
-  String _formatTanggalLahir(String tanggalLahir) {
-    final parts = tanggalLahir.split('/');
-    if (parts.length != 3) return tanggalLahir;
-    final day = int.tryParse(parts[0]);
-    final month = int.tryParse(parts[1]);
-    final year = int.tryParse(parts[2]);
-    if (day == null || month == null || year == null) return tanggalLahir;
-    return '${year.toString().padLeft(4, '0')}-'
-        '${month.toString().padLeft(2, '0')}-'
-        '${day.toString().padLeft(2, '0')}';
-  }
+ 
 
   Future<void> _register() async {
     if (_isLoading) return;
     final nama = _namaController.text.trim();
     final nim = _nimController.text.trim();
     final kelas = _kelasController.text.trim();
-    final tanggalLahir = _formatTanggalLahir(
+    final tanggalLahir = FormatTanggalLahir(
       _tanggalLahirController.text.trim(),
     );
     final password = _passwordController.text;
