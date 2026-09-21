@@ -7,7 +7,7 @@ import '../../services/quiz_service.dart';
 import '../../services/session_service.dart';
 import '../../theme/app_theme.dart';
 import '../../theme/quiz_option_theme.dart';
-import '../../widgets/app_header_bar.dart';
+import '../../widgets/app_header_bar_with_actions.dart';
 import '../../widgets/app_snackbar.dart';
 
 const _fieldBg = Color(0xFFF0F3FF);
@@ -148,7 +148,7 @@ class _CreateQuizPageState extends State<CreateQuizPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppHeaderBar(
+      appBar: AppHeaderBarWithActions(
         title: 'Create Quiz',
         leading: IconButton(
           tooltip: 'Kembali',

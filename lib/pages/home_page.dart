@@ -9,7 +9,7 @@ import '../services/quiz_service.dart';
 import '../services/session_service.dart';
 import '../theme/app_theme.dart';
 import '../utils/format.dart';
-import '../widgets/app_header_bar.dart';
+import '../widgets/app_header_bar_with_actions.dart';
 import '../widgets/app_pill_button.dart';
 import '../widgets/app_snackbar.dart';
 import '../widgets/empty_state_view.dart';
@@ -176,8 +176,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppHeaderBar(
-        title: 'Menu Utama',
+      appBar: AppHeaderBarWithActions(
         actions: [
           IconButton(
             tooltip: 'Refresh',

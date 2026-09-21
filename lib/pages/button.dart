@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 import 'home_page.dart';
-import 'kalkulator_page.dart';
+import '../quarantine/kalkulator_page.dart';
 import 'QuizPage/quiz_page.dart';
 import 'konversi_page.dart';
 import 'help_page.dart';
@@ -24,7 +24,6 @@ class _MainShellState extends State<MainShell> {
     final pages = [
       HomePage(user: widget.user),
       QuizPage(user: widget.user),
-      KalkulatorPage(),
       KonversiPage(),
       HelpPage(),
     ];
@@ -39,7 +38,6 @@ class _MainShellState extends State<MainShell> {
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.quiz), label: 'Quiz'),
-          BottomNavigationBarItem(icon: Icon(Icons.calculate), label: 'Kalkulator'),
           BottomNavigationBarItem(icon: Icon(Icons.swap_horiz), label: 'Konversi'),
           BottomNavigationBarItem(icon: Icon(Icons.help_outline), label: 'Bantuan'),
         ],

@@ -12,11 +12,12 @@ import '../../theme/quiz_option_theme.dart';
 import '../../theme/quiz_status.dart';
 import '../../utils/format.dart';
 import '../../widgets/app_header_bar.dart';
+import '../../widgets/app_header_bar_with_actions.dart';
 import '../../widgets/app_snackbar.dart';
 import '../../widgets/empty_state_view.dart';
 import '../../widgets/error_state_view.dart';
 import '../../widgets/section_header.dart';
-import '../../widgets/status_badge.dart';
+import '../../components/status_badge.dart';
 import '../login_page.dart';
 
 const _statusFlow = ['waiting', 'open', 'in-Game', 'ended'];
@@ -119,7 +120,7 @@ class _RoomsPageState extends State<RoomsPage> {
   Widget build(BuildContext context) {
     final title = _quiz?.title;
     return Scaffold(
-      appBar: AppHeaderBar(
+      appBar: AppHeaderBarWithActions(
         title: title == null || title.isEmpty ? 'Rooms' : title,
         actions: [
           IconButton(
