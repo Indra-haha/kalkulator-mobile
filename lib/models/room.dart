@@ -26,7 +26,7 @@ class Room {
       id: json['id'] as String? ?? '',
       quizId: json['quiz_id'] as String? ?? '',
       kode: json['kode'] as String? ?? '',
-      status: json['status'] as String? ?? 'waiting',
+      status: json['status'] as String? ?? '',
       createdAt: json['created_at'] as String? ?? '',
       judul: json['judul'] as String?,
       isi: json['isi'] as String?,
